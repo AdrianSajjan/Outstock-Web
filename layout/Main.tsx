@@ -45,9 +45,11 @@ const MainLayout: NextPage = ({ children }) => {
         </Box>
         <Box as="nav" bg="white">
           <Container maxW="container.2xl" h={90} display="flex" alignItems="center" justifyContent="space-between">
-            <Heading size="lg" textTransform="uppercase" fontFamily="brand" fontWeight="bold">
-              Outstock
-            </Heading>
+            <NextLink href="/" passHref>
+              <Heading size="lg" textTransform="uppercase" fontFamily="brand" fontWeight="bold" cursor="pointer">
+                Outstock
+              </Heading>
+            </NextLink>
             <Box display="flex" alignItems="center" columnGap={10} fontWeight="medium">
               <NextLink href="/women" passHref>
                 <Link fontWeight="medium">Women</Link>

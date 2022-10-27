@@ -27,11 +27,17 @@ import {
   Collapse,
 } from "@chakra-ui/react";
 import { StarRating } from "@components/Rating";
+import { PageHeader } from "@components/Layout";
 
 const CATEGORIES = [
   { value: "bestsellers", label: "Bestsellers" },
   { value: "newArrivals", label: "New Arrivals" },
   { value: "specials", label: "Specials" },
+];
+
+const breadcrumbs = [
+  { name: "Home", url: "/" },
+  { name: "Women", url: "/women", isCurrentPage: true },
 ];
 
 const Women: NextPage = () => {
@@ -44,27 +50,7 @@ const Women: NextPage = () => {
       <Head>
         <title>Women&apos;s Shopping</title>
       </Head>
-      <Box as="section" bg="gray.100">
-        <Container maxW="container.2xl" pt="4" pb="8">
-          <Breadcrumb separator={<HiChevronRight />}>
-            <BreadcrumbItem>
-              <NextLink href="/" passHref>
-                <BreadcrumbLink>Home</BreadcrumbLink>
-              </NextLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              <NextLink href="/women" passHref>
-                <BreadcrumbLink fontWeight="semibold" isCurrentPage>
-                  Women
-                </BreadcrumbLink>
-              </NextLink>
-            </BreadcrumbItem>
-          </Breadcrumb>
-          <Heading size="lg" textTransform="uppercase" mt="4" textAlign="center">
-            Women
-          </Heading>
-        </Container>
-      </Box>
+      <PageHeader title="Women" breadcrumbs={breadcrumbs} />
       <Box as="section" bg="white">
         <Container maxW="container.2xl" py="8">
           <Box display="flex" alignItems="center" justifyContent="space-between">
