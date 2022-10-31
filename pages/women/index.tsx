@@ -28,6 +28,7 @@ import {
 } from "@chakra-ui/react";
 import { StarRating } from "@components/Rating";
 import { PageHeader } from "@components/Layout";
+import { ProductCard } from "@components/Cards";
 
 const CATEGORIES = [
   { value: "bestsellers", label: "Bestsellers" },
@@ -229,76 +230,7 @@ const Women: NextPage = () => {
           <Box pt="16">
             <Grid templateColumns="repeat(4, 1fr)" gridGap={10}>
               <GridItem>
-                <Box w="full" h="sm" bg="green.200"></Box>
-                <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                  Mercury Tee
-                </Text>
-                <HStack alignItems="center" justifyContent="space-between" mt="1">
-                  <Text fontWeight="bold" fontSize="lg">
-                    ₹ 3,470
-                  </Text>
-                  <StarRating total={5} rating={4} size={16} />
-                </HStack>
-              </GridItem>
-              <GridItem>
-                <Box w="full" h="sm" bg="red.200"></Box>
-                <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                  Mercury Tee
-                </Text>
-                <HStack alignItems="center" justifyContent="space-between" mt="1">
-                  <Text fontWeight="bold" fontSize="lg">
-                    ₹ 3,470
-                  </Text>
-                  <StarRating total={5} rating={4} size={16} />
-                </HStack>
-              </GridItem>
-              <GridItem>
-                <Box w="full" h="sm" bg="yellow.200"></Box>
-                <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                  Mercury Tee
-                </Text>
-                <HStack alignItems="center" justifyContent="space-between" mt="1">
-                  <Text fontWeight="bold" fontSize="lg">
-                    ₹ 3,470
-                  </Text>
-                  <StarRating total={5} rating={4} size={16} />
-                </HStack>
-              </GridItem>
-              <GridItem>
-                <Box w="full" h="sm" bg="green.200"></Box>
-                <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                  Mercury Tee
-                </Text>
-                <HStack alignItems="center" justifyContent="space-between" mt="1">
-                  <Text fontWeight="bold" fontSize="lg">
-                    ₹ 3,470
-                  </Text>
-                  <StarRating total={5} rating={4} size={16} />
-                </HStack>
-              </GridItem>
-              <GridItem>
-                <Box w="full" h="sm" bg="blue.200"></Box>
-                <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                  Mercury Tee
-                </Text>
-                <HStack alignItems="center" justifyContent="space-between" mt="1">
-                  <Text fontWeight="bold" fontSize="lg">
-                    ₹ 3,470
-                  </Text>
-                  <StarRating total={5} rating={4} size={16} />
-                </HStack>
-              </GridItem>
-              <GridItem>
-                <Box w="full" h="sm" bg="pink.200"></Box>
-                <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                  Mercury Tee
-                </Text>
-                <HStack alignItems="center" justifyContent="space-between" mt="1">
-                  <Text fontWeight="bold" fontSize="lg">
-                    ₹ 3,470
-                  </Text>
-                  <StarRating total={5} rating={4} size={16} />
-                </HStack>
+                <ProductCard name="Mercury Tee" price="3750" rating={4} image="/products/sample-tee-shirt.webp" />
               </GridItem>
             </Grid>
           </Box>

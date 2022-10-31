@@ -14,8 +14,8 @@ const PageHeader: NextPage<PageHeaderProps> = ({ title, breadcrumbs }) => {
     <Box as="section" bg="gray.100">
       <Container maxW="container.2xl" pt="4" pb="8">
         <Breadcrumb separator={<HiChevronRight />}>
-          {breadcrumbs.map(({ name, url, isCurrentPage }) => (
-            <BreadcrumbItem>
+          {breadcrumbs.map(({ name, url, isCurrentPage }, index) => (
+            <BreadcrumbItem key={`${name}-${index}`}>
               <NextLink href={url} passHref>
                 <BreadcrumbLink {...{ fontWeight: isCurrentPage ? "semibold" : "normal", isCurrentPage, textTransform: "capitalize" }}>
                   {name}

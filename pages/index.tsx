@@ -1,51 +1,45 @@
 import Head from "next/head";
-import type { NextPage } from "next";
+import Image from "next/image";
+import { HeroSmallCard } from "@shared/pages";
 import { CategoryTab } from "@components/Tabs";
+import { ProductCard } from "@components/Cards";
+import type { GetServerSideProps, NextPage } from "next";
+import { HomePageProps, HomePageServerSideProps } from "@shared/interface";
 import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/hi";
-import { Box, Button, Container, Grid, GridItem, Heading, HStack, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
-import { StarRating } from "@components/Rating";
+import { Box, Button, Container, Grid, GridItem, Heading, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
 
-const Home: NextPage = () => {
+// Mock
+import { banner, blog, hero, products } from "@shared/constants/home";
+// End of Mock
+
+const Home: NextPage<HomePageProps> = ({ banner, blog, hero }) => {
   return (
     <>
       <Head>
         <title>Oustock Home</title>
       </Head>
+
       <Box as="section" borderBottomWidth={1} borderBottomColor="gray.200">
         <Container paddingTop="12" paddingBottom="12" maxW="container.2xl">
           <Grid h="2xl" gridGap={6} templateColumns="repeat(4, 1fr)" templateRows="repeat(2, 1fr)">
-            <GridItem colSpan={2} rowSpan={2} bg="red.200" position="relative">
+            <GridItem colSpan={2} rowSpan={2} position="relative">
+              <Box boxSize="full" position="relative">
+                <Image layout="fill" src={hero.main.image} objectFit="cover" />
+              </Box>
               <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="4" px="12" borderRadius="sm">
                 <Text textTransform="uppercase" fontWeight="semibold" fontSize="md" align="center" color="gray.600">
-                  Welcome
+                  {hero.main.caption}
                 </Text>
                 <Heading textTransform="uppercase" size="lg" textAlign="center" mt="2">
-                  Sale is live
+                  {hero.main.title}
                 </Heading>
               </Box>
             </GridItem>
-            <GridItem colSpan={1} rowSpan={1} bg="blue.200" position="relative">
-              <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="3" px="9" borderRadius="sm">
-                <Heading textTransform="uppercase" size="md" textAlign="center">
-                  Women
-                </Heading>
-              </Box>
-            </GridItem>
-            <GridItem colSpan={1} rowSpan={1} bg="green.200" position="relative">
-              <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="3" px="9" borderRadius="sm">
-                <Heading textTransform="uppercase" size="md" textAlign="center">
-                  Men
-                </Heading>
-              </Box>
-            </GridItem>
-            <GridItem colSpan={2} rowSpan={1} bg="yellow.200" position="relative">
-              <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="3" px="9" borderRadius="sm">
-                <Heading textTransform="uppercase" size="md" textAlign="center">
-                  Accessories
-                </Heading>
-              </Box>
-            </GridItem>
+            <HeroSmallCard image={hero.left.image} colSpan={1} title={hero.left.title} url={hero.left.url!} />
+            <HeroSmallCard image={hero.right.image} colSpan={1} title={hero.right.title} url={hero.right.url!} />
+            <HeroSmallCard image={hero.bottom.image} colSpan={2} title={hero.bottom.title} url={hero.bottom.url!} />
           </Grid>
+
           <Box display="flex" marginTop={12} alignItems="center" justifyContent="space-between" gap={12}>
             <Box display="flex" alignItems="center" columnGap={4}>
               <HiOutlineTruck size={48} />
@@ -77,6 +71,7 @@ const Home: NextPage = () => {
           </Box>
         </Container>
       </Box>
+
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Heading textTransform="uppercase" size="lg">
@@ -91,54 +86,11 @@ const Home: NextPage = () => {
             <TabPanels mt="10">
               <TabPanel p="0">
                 <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="red.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="red.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="red.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="red.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
+                  {products.map(({ _id: id, ...rest }) => (
+                    <GridItem key={id}>
+                      <ProductCard {...{ ...rest, id }} />
+                    </GridItem>
+                  ))}
                 </Grid>
               </TabPanel>
               <TabPanel></TabPanel>
@@ -150,6 +102,7 @@ const Home: NextPage = () => {
           </Button>
         </Container>
       </Box>
+
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Heading textTransform="uppercase" size="lg">
@@ -164,54 +117,11 @@ const Home: NextPage = () => {
             <TabPanels mt="10">
               <TabPanel p="0">
                 <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="pink.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="pink.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="pink.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <Box w="full" h="sm" bg="pink.200"></Box>
-                    <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-                      Mercury Tee
-                    </Text>
-                    <HStack alignItems="center" justifyContent="space-between" mt="1">
-                      <Text fontWeight="bold" fontSize="lg">
-                        ₹ 3,470
-                      </Text>
-                      <StarRating total={5} rating={4} size={16} />
-                    </HStack>
-                  </GridItem>
+                  {products.map(({ _id: id, ...rest }) => (
+                    <GridItem key={id}>
+                      <ProductCard {...{ ...rest, id }} />
+                    </GridItem>
+                  ))}
                 </Grid>
               </TabPanel>
               <TabPanel></TabPanel>
@@ -223,6 +133,7 @@ const Home: NextPage = () => {
           </Button>
         </Container>
       </Box>
+
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Grid templateColumns="repeat(2, 1fr)" gap={16}>
@@ -253,6 +164,7 @@ const Home: NextPage = () => {
           </Grid>
         </Container>
       </Box>
+
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="24">
           <Box>
@@ -299,6 +211,11 @@ const Home: NextPage = () => {
       </Box>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async (context) => {
+  // Perform api calls
+  return { props: { blog, hero, banner } };
 };
 
 export default Home;
