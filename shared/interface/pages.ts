@@ -1,7 +1,7 @@
 // Home Page
 
-export type HomePageBlog = Array<{ image: string; title: string; body: string }>;
-export type HomePageBanner = Array<{ image: string; title: string; caption: string }>;
+export type HomePageBlog = Array<{ _id: string; image: string; title: string; body: string }>;
+export type HomePageBanner = Array<{ _id: string; image: string; title: string; caption: string }>;
 export type HomePageHero = Record<"main" | "left" | "right" | "bottom", { image: string; title: string; caption?: string; url?: string }>;
 
 export interface HomePageServerSideProps {
@@ -10,6 +10,6 @@ export interface HomePageServerSideProps {
   hero: HomePageHero;
 }
 
-export interface HomePageProps extends HomePageServerSideProps {}
+export type HomePageProps = HomePageServerSideProps;
 
 // End of Home Page

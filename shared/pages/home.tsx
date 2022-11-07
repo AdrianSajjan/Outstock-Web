@@ -26,3 +26,7 @@ export const HeroSmallCard: NextPage<HeroSmallCardProp> = ({ image, title, url, 
     </Link>
   );
 };
+
+export const BannerCard = () => {
+  return <></>;
+};

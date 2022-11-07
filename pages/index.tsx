@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import { SiteApi } from "@shared/api";
 import { HeroSmallCard } from "@shared/pages";
 import { CategoryTab } from "@components/Tabs";
 import { ProductCard } from "@components/Cards";
@@ -9,10 +10,10 @@ import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/
 import { Box, Button, Container, Grid, GridItem, Heading, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
 
 // Mock
-import { banner, blog, hero, products } from "@shared/constants/home";
+import { products } from "@shared/constants/home";
 // End of Mock
 
-const Home: NextPage<HomePageProps> = ({ banner, blog, hero }) => {
+const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
   return (
     <>
       <Head>
@@ -137,30 +138,21 @@ const Home: NextPage<HomePageProps> = ({ banner, blog, hero }) => {
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Grid templateColumns="repeat(2, 1fr)" gap={16}>
-            <GridItem>
-              <Box h="80" bg="green.200" display="flex" alignItems="center" justifyContent="center">
-                <Box bg="white" py="4" px="8" borderRadius="sm">
-                  <Text align="center" fontWeight="semibold" textTransform="uppercase" color="gray.600" fontSize="sm">
-                    New Season
-                  </Text>
-                  <Text fontWeight="bold" textTransform="uppercase" color="black" mt="1" letterSpacing={1}>
-                    Lookbook Collection
-                  </Text>
+            {banner.map(({ caption, image, title, _id }) => (
+              <GridItem key={_id}>
+                <Box h="80" display="flex" alignItems="center" justifyContent="center" position="relative">
+                  <Image src={image} layout="fill" objectFit="cover" />
+                  <Box bg="white" py="4" px="8" borderRadius="sm" position="relative" zIndex={10}>
+                    <Text align="center" fontWeight="semibold" textTransform="uppercase" color="gray.600" fontSize="sm">
+                      {caption}
+                    </Text>
+                    <Text fontWeight="bold" textTransform="uppercase" color="black" mt="1" letterSpacing={1}>
+                      {title}
+                    </Text>
+                  </Box>
                 </Box>
-              </Box>
-            </GridItem>
-            <GridItem>
-              <Box h="80" bg="yellow.200" display="flex" alignItems="center" justifyContent="center">
-                <Box bg="white" py="4" px="8" borderRadius="sm">
-                  <Text align="center" fontWeight="semibold" textTransform="uppercase" color="gray.600" fontSize="sm">
-                    Sale
-                  </Text>
-                  <Text fontWeight="bold" textTransform="uppercase" color="black" mt="1" letterSpacing={1}>
-                    Get up to <span style={{ color: "red" }}>50% off</span>
-                  </Text>
-                </Box>
-              </Box>
-            </GridItem>
+              </GridItem>
+            ))}
           </Grid>
         </Container>
       </Box>
@@ -173,39 +165,21 @@ const Home: NextPage<HomePageProps> = ({ banner, blog, hero }) => {
             </Heading>
           </Box>
           <Grid templateColumns="repeat(3, 1fr)" gridGap={16} mt="16">
-            <GridItem>
-              <Box w="full" h="80" bg="blue.200"></Box>
-              <Box py="8" px="6" mt="-16" bg="white" w="80%" mx="auto">
-                <Heading textTransform="uppercase" size="sm" letterSpacing={1}>
-                  The Easiest Way To Break
-                </Heading>
-                <Text mt="4" color="gray.600">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni vel architecto voluptate vero.
-                </Text>
-              </Box>
-            </GridItem>
-            <GridItem>
-              <Box w="full" h="80" bg="blue.200"></Box>
-              <Box py="8" px="6" mt="-16" bg="white" w="80%" mx="auto">
-                <Heading textTransform="uppercase" size="sm" letterSpacing={1}>
-                  Wedding Season
-                </Heading>
-                <Text mt="4" color="gray.600">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni vel architecto voluptate vero.
-                </Text>
-              </Box>
-            </GridItem>
-            <GridItem>
-              <Box w="full" h="80" bg="blue.200"></Box>
-              <Box py="8" px="6" mt="-16" bg="white" w="80%" mx="auto">
-                <Heading textTransform="uppercase" size="sm" letterSpacing={1}>
-                  Recent Favourites
-                </Heading>
-                <Text mt="4" color="gray.600">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni vel architecto voluptate vero.
-                </Text>
-              </Box>
-            </GridItem>
+            {blog.map(({ body, image, title, _id }) => (
+              <GridItem key={_id}>
+                <Box w="full" h="80" position="relative">
+                  <Image src={image} layout="fill" objectFit="cover" />
+                </Box>
+                <Box py="8" px="6" mt="-16" bg="white" w="80%" mx="auto" position="relative" zIndex={10}>
+                  <Heading textTransform="uppercase" size="sm" letterSpacing={1}>
+                    {title}
+                  </Heading>
+                  <Text mt="4" color="gray.600">
+                    {body}
+                  </Text>
+                </Box>
+              </GridItem>
+            ))}
           </Grid>
         </Container>
       </Box>
@@ -213,9 +187,9 @@ const Home: NextPage<HomePageProps> = ({ banner, blog, hero }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async (context) => {
-  // Perform api calls
-  return { props: { blog, hero, banner } };
+export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async () => {
+  const { data } = await SiteApi.fetchHomePageData();
+  return { props: { ...data } };
 };
 
 export default Home;
