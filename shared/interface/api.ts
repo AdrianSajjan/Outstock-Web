@@ -1,3 +1,4 @@
+import { User } from "./entity";
 import { HomePageServerSideProps } from "./pages";
 
 export interface FetchHomePageDataSuccess {
@@ -7,9 +8,7 @@ export interface FetchHomePageDataSuccess {
   data: HomePageServerSideProps;
 }
 
-export interface AuthenticateSessionSuccess {
-  user: any;
-}
+export interface AuthenticateSessionSuccess extends User {}
 
 export interface LoginSuccess {
   user: any;

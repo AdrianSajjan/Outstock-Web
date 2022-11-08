@@ -1,7 +1,3 @@
-import * as React from "react";
-import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
-import { useMutation } from "@tanstack/react-query";
-import { ProfileSidebarProps, LoginFormProps, LoginFormState } from "@shared/interface";
 import {
   Box,
   Button,
@@ -12,25 +8,29 @@ import {
   DrawerFooter,
   DrawerOverlay,
   FormControl,
-  FormErrorIcon,
   FormErrorMessage,
   FormLabel,
   HStack,
   Input,
-  InputGroup,
-  InputRightElement,
   Spinner,
   Text,
+  useToast,
 } from "@chakra-ui/react";
-import { LoginFormValidation } from "@shared/validations";
-import { login } from "@shared/api";
+import * as React from "react";
+import { login, register } from "@shared/api";
 import { isFieldInvalid } from "@shared/utils";
-import { useSession } from "@shared/hooks";
+import { useMutation } from "@tanstack/react-query";
+import { LoginFormValidation, RegistrationFormValidation } from "@shared/validations";
+import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { ProfileFormProps, LoginFormState, LoginSuccess, ProfileSidebarProps, RegistrationFormState, RegistrationSuccess } from "@shared/interface";
+import { AxiosError } from "axios";
 
-const LoginForm: React.FC<LoginFormProps> = ({ handleFormChange }) => {
+const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthenticated }) => {
+  const toast = useToast();
+
   const [isLoading, setLoading] = React.useState(false);
 
-  const mutatation = useMutation({ mutationFn: login });
+  const mutatation = useMutation<LoginSuccess, AxiosError, LoginFormState>({ mutationFn: login });
 
   const initialValues: LoginFormState = {
     emailAddress: "",
@@ -38,14 +38,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ handleFormChange }) => {
   };
 
   const onSubmit = (values: LoginFormState, actions: FormikHelpers<LoginFormState>) => {
-    console.log("Submit");
     setLoading(true);
-
     mutatation.mutate(values, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        toast({ title: "Login Success", description: "You have been successfully logged in", status: "success", isClosable: true });
         actions.resetForm();
+        setAuthenticated(true);
       },
-      onError: () => {},
+      onError: (error) => {
+        if (Array.isArray(error)) {
+        } else {
+          toast({ title: "Login Failed", description: error, status: "error", isClosable: true });
+        }
+      },
       onSettled: () => {
         setLoading(false);
       },
@@ -69,24 +74,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ handleFormChange }) => {
                 <FormLabel textTransform="uppercase" htmlFor="email">
                   Email
                 </FormLabel>
-                <InputGroup>
-                  <Field as={Input} id="email" name="emailAddress" variant="filled" type="email" placeholder="Enter your email" />
-                  <InputRightElement>
-                    <FormErrorIcon color="red.500" />
-                  </InputRightElement>
-                </InputGroup>
+                <Field as={Input} id="email" name="emailAddress" variant="filled" type="email" placeholder="Enter your email" />
                 <ErrorMessage name="emailAddress" component={FormErrorMessage} />
               </FormControl>
               <FormControl mt="4" isInvalid={isFieldInvalid(formik, "password")}>
                 <FormLabel textTransform="uppercase" htmlFor="password">
                   Password
                 </FormLabel>
-                <InputGroup>
-                  <Field as={Input} id="password" name="password" variant="filled" type="password" placeholder="Enter your password" />
-                  <InputRightElement>
-                    <FormErrorIcon color="red.500" />
-                  </InputRightElement>
-                </InputGroup>
+                <Field as={Input} id="password" name="password" variant="filled" type="password" placeholder="Enter your password" />
                 <ErrorMessage name="password" component={FormErrorMessage} />
               </FormControl>
               <Button isLoading={isLoading} mt="6" type="submit" isFullWidth bg="black" color="white" colorScheme="blackAlpha">
@@ -106,7 +101,45 @@ const LoginForm: React.FC<LoginFormProps> = ({ handleFormChange }) => {
   );
 };
 
-const RegisterForm: React.FC<LoginFormProps> = ({ handleFormChange }) => {
+const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthenticated }) => {
+  const toast = useToast();
+
+  const [isLoading, setLoading] = React.useState(false);
+
+  const mutatation = useMutation<RegistrationSuccess, AxiosError, RegistrationFormState>({ mutationFn: register });
+
+  const initialValues: RegistrationFormState = {
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    emailAddress: "",
+    password: "",
+    confirmPassword: "",
+  };
+
+  const onSubmit = (values: RegistrationFormState, actions: FormikHelpers<RegistrationFormState>) => {
+    setLoading(true);
+    mutatation.mutate(
+      { ...values, phoneNumber: `+91${values.phoneNumber}` },
+      {
+        onSuccess: (data) => {
+          toast({ title: "Registration Success", description: "You have been successfully registered", status: "success", isClosable: true });
+          actions.resetForm();
+          setAuthenticated(true);
+        },
+        onError: (error) => {
+          if (Array.isArray(error)) {
+          } else {
+            toast({ title: "Registration Failed", description: error, status: "error", isClosable: true });
+          }
+        },
+        onSettled: () => {
+          setLoading(false);
+        },
+      }
+    );
+  };
+
   return (
     <>
       <HStack bg="black" px="6" h="14" justifyContent="space-between" alignItems="center">
@@ -117,39 +150,58 @@ const RegisterForm: React.FC<LoginFormProps> = ({ handleFormChange }) => {
       </HStack>
       <DrawerBody pt="6">
         <Text align="center">If you dont&apos;t have an account with us, register.</Text>
-        <FormControl mt="6">
-          <FormLabel textTransform="uppercase" htmlFor="first-name">
-            First Name
-          </FormLabel>
-          <Input id="first-name" variant="filled" type="type" placeholder="Enter your first name" />
-        </FormControl>
-        <FormControl mt="4">
-          <FormLabel textTransform="uppercase" htmlFor="last-name">
-            Last Name
-          </FormLabel>
-          <Input id="last-name" variant="filled" type="type" placeholder="Enter your last name" />
-        </FormControl>
-        <FormControl mt="4">
-          <FormLabel textTransform="uppercase" htmlFor="email">
-            Email
-          </FormLabel>
-          <Input id="email" variant="filled" type="email" placeholder="Enter your email" />
-        </FormControl>
-        <FormControl mt="4">
-          <FormLabel textTransform="uppercase" htmlFor="password">
-            Password
-          </FormLabel>
-          <Input id="password" variant="filled" type="password" placeholder="Enter your password" />
-        </FormControl>
-        <FormControl mt="4">
-          <FormLabel textTransform="uppercase" htmlFor="confirm-password">
-            Confirm Password
-          </FormLabel>
-          <Input id="confirm-password" variant="filled" type="password" placeholder="Re-enter your password" />
-        </FormControl>
-        <Button mt="8" isFullWidth bg="black" color="white" colorScheme="blackAlpha">
-          Register
-        </Button>
+        <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={RegistrationFormValidation}>
+          {(formik) => (
+            <Form>
+              {JSON.stringify(formik.errors)}
+              <FormControl mt="6" isInvalid={isFieldInvalid(formik, "firstName")}>
+                <FormLabel textTransform="uppercase" htmlFor="first-name">
+                  First Name
+                </FormLabel>
+                <Field as={Input} name="firstName" id="first-name" variant="filled" type="type" placeholder="Enter your first name" />
+                <ErrorMessage name="firstName" component={FormErrorMessage} />
+              </FormControl>
+              <FormControl mt="4" isInvalid={isFieldInvalid(formik, "lastName")}>
+                <FormLabel textTransform="uppercase" htmlFor="last-name">
+                  Last Name
+                </FormLabel>
+                <Field as={Input} name="lastName" id="last-name" variant="filled" type="type" placeholder="Enter your last name" />
+                <ErrorMessage name="lastName" component={FormErrorMessage} />
+              </FormControl>
+              <FormControl mt="4" isInvalid={isFieldInvalid(formik, "emailAddress")}>
+                <FormLabel textTransform="uppercase" htmlFor="email">
+                  Email
+                </FormLabel>
+                <Field as={Input} name="emailAddress" id="email" variant="filled" type="email" placeholder="Enter your email" />
+                <ErrorMessage name="emailAddress" component={FormErrorMessage} />
+              </FormControl>
+              <FormControl mt="4" isInvalid={isFieldInvalid(formik, "phoneNumber")}>
+                <FormLabel textTransform="uppercase" htmlFor="phone-number">
+                  Phone Number
+                </FormLabel>
+                <Field as={Input} name="phoneNumber" id="phone-number" variant="filled" type="number" placeholder="Enter your phone number" />
+                <ErrorMessage name="phoneNumber" component={FormErrorMessage} />
+              </FormControl>
+              <FormControl mt="4" isInvalid={isFieldInvalid(formik, "password")}>
+                <FormLabel textTransform="uppercase" htmlFor="password">
+                  Password
+                </FormLabel>
+                <Field as={Input} name="password" id="password" variant="filled" type="password" placeholder="Enter your password" />
+                <ErrorMessage name="password" component={FormErrorMessage} />
+              </FormControl>
+              <FormControl mt="4" isInvalid={isFieldInvalid(formik, "confirmPassword")}>
+                <FormLabel textTransform="uppercase" htmlFor="confirm-pwd">
+                  Confirm Password
+                </FormLabel>
+                <Field as={Input} name="confirmPassword" id="confirm-pwd" variant="filled" type="password" placeholder="Re-enter your password" />
+                <ErrorMessage name="confirmPassword" component={FormErrorMessage} />
+              </FormControl>
+              <Button mt="8" isLoading={isLoading} type="submit" isFullWidth bg="black" color="white" colorScheme="blackAlpha">
+                Register
+              </Button>
+            </Form>
+          )}
+        </Formik>
       </DrawerBody>
       <DrawerFooter flexDir="column">
         <Text align="center">Have An Account?</Text>
@@ -175,8 +227,7 @@ const Profile = () => {
 
 const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ handleClose, isOpen, isLoadingComplete }) => {
   const [form, setForm] = React.useState(0);
-
-  const session = useSession();
+  const [isAuthenticated, setAuthenticated] = React.useState(false);
 
   const handleFormChange = () => setForm((state) => (state === 0 ? 1 : 0));
 
@@ -186,12 +237,12 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ handleClose, isOpen, is
       <DrawerContent>
         {!isLoadingComplete ? (
           <LoadingState />
-        ) : session.isAuthenticated ? (
+        ) : isAuthenticated ? (
           <Profile />
         ) : form === 0 ? (
-          <LoginForm handleFormChange={handleFormChange} />
+          <LoginForm handleFormChange={handleFormChange} setAuthenticated={setAuthenticated} />
         ) : (
-          <RegisterForm handleFormChange={handleFormChange} />
+          <RegisterForm handleFormChange={handleFormChange} setAuthenticated={setAuthenticated} />
         )}
       </DrawerContent>
     </Drawer>

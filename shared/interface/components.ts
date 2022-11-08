@@ -17,6 +17,7 @@ export interface ProfileSidebarProps {
   isLoadingComplete: boolean;
 }
 
-export interface LoginFormProps {
+export interface ProfileFormProps {
   handleFormChange: () => void;
+  setAuthenticated: (state: boolean) => void;
 }

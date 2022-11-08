@@ -1,33 +1,26 @@
+import { deleteCookie, getCookie, hasCookie, setCookie, setCookies } from "cookies-next";
+
 export const getAccessToken = () => {
-  let accessToken: string | null = null;
-  if (typeof window !== "undefined") accessToken = localStorage.getItem("accessToken");
+  const accessToken = getCookie("accessToken");
   return accessToken;
 };
 
 export const getRefreshToken = () => {
-  let refreshToken: string | null = null;
-  if (typeof window !== "undefined") refreshToken = localStorage.getItem("refreshToken");
+  const refreshToken = getCookie("refreshToken");
   return refreshToken;
 };
 
 export const setSession = (accessToken: string, refreshToken: string) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-  }
+  setCookie("accessToken", accessToken);
+  setCookie("refreshToken", refreshToken);
 };
 
 export const deleteSession = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-  }
+  deleteCookie("accessToken");
+  deleteCookie("refreshToken");
 };
 
 export const isSessionActive = () => {
-  let active = false;
-  if (typeof window !== "undefined") {
-    active = !!localStorage.getItem("accessToken") || !!localStorage.getItem("refreshToken");
-  }
+  const active = hasCookie("accessToken") || hasCookie("refreshToken");
   return active;
 };

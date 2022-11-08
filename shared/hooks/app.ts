@@ -1,8 +1,8 @@
 import * as React from "react";
-import { api, client } from "@shared/api";
+import { api } from "@shared/api";
 import { AppContext } from "@shared/context";
-import { AuthenticateSessionSuccess, LoginQueryState } from "@shared/interface";
-import { deleteSession, getAccessToken, getRefreshToken, isSessionActive } from "@shared/utils";
+import { AuthenticateSessionSuccess } from "@shared/interface";
+import { deleteSession, isSessionActive } from "@shared/utils";
 
 export const useAppContext = () => {
   const app = React.useContext(AppContext);
@@ -17,15 +17,8 @@ export const useAuthentication = () => {
       try {
         const sessionActive = isSessionActive();
         if (!sessionActive) return;
-        const res = await api.get<AuthenticateSessionSuccess>("/auth/session");
-        client.setQueryData(["auth"], {
-          user: res.data.user,
-          accessToken: getAccessToken(),
-          refreshToken: getRefreshToken(),
-          isAuthenticated: true,
-        });
+        const res = await api.get<AuthenticateSessionSuccess>("/user/auth");
       } catch (error) {
-        client.invalidateQueries({ queryKey: ["auth"] });
         deleteSession();
       } finally {
         setLoadingComplete(true);
@@ -34,10 +27,4 @@ export const useAuthentication = () => {
   }, []);
 
   return isLoadingComplete;
-};
-
-export const useSession = () => {
-  const initialState: LoginQueryState = { accessToken: null, isAuthenticated: false, refreshToken: null, user: null };
-  const session = client.getQueryData<LoginQueryState>(["auth"]) || initialState;
-  return { ...session };
 };

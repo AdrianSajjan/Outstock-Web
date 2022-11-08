@@ -3,9 +3,18 @@ export interface LoginFormState {
   password: string;
 }
 
-export interface LoginQueryState {
+export interface AuthenticationQueryState {
   user: any;
   isAuthenticated: boolean;
   accessToken: string | null;
   refreshToken: string | null;
+}
+
+export interface RegistrationFormState {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  emailAddress: string;
+  password: string;
+  confirmPassword: string;
 }
