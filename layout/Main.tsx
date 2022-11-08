@@ -2,13 +2,17 @@ import * as React from "react";
 import NextLink from "next/link";
 import type { NextPage } from "next";
 import { useAppContext } from "@shared/hooks";
-import { CartSidebar, LoginSidebar, SearchSidebar } from "@components/Sidebar";
+import { CartSidebar, ProfileSidebar, SearchSidebar } from "@components/Sidebar";
 import { RiFacebookCircleFill, RiInstagramFill, RiTwitterFill } from "react-icons/ri";
 import { Box, Button, Container, Heading, IconButton, Input, Link, Text } from "@chakra-ui/react";
 import { HiClock, HiLocationMarker, HiMail, HiPhone, HiSearch, HiShoppingBag, HiUser } from "react-icons/hi";
 
-const MainLayout: NextPage = ({ children }) => {
-  const { isLoginSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, setLoginSidebarOpen, setCartSidebarOpen, setSearchSidebarOpen } =
+interface MainLayoutProps {
+  isLoadingComplete: boolean;
+}
+
+const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) => {
+  const { isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, setProfileSidebarOpen, setCartSidebarOpen, setSearchSidebarOpen } =
     useAppContext();
 
   return (
@@ -71,7 +75,7 @@ const MainLayout: NextPage = ({ children }) => {
               </NextLink>
             </Box>
             <Box display="flex" columnGap={4}>
-              <IconButton aria-label="user" onClick={() => setLoginSidebarOpen(true)} icon={<HiUser size={24} />} variant="ghost" />
+              <IconButton aria-label="user" onClick={() => setProfileSidebarOpen(true)} icon={<HiUser size={24} />} variant="ghost" />
               <IconButton aria-label="search" onClick={() => setSearchSidebarOpen(true)} icon={<HiSearch size={24} />} variant="ghost" />
               <IconButton aria-label="cart" onClick={() => setCartSidebarOpen(true)} icon={<HiShoppingBag size={24} />} variant="ghost" />
             </Box>
@@ -79,7 +83,11 @@ const MainLayout: NextPage = ({ children }) => {
         </Box>
       </Box>
       <CartSidebar isOpen={isCartSidebarOpen} handleClose={() => setCartSidebarOpen(false)} />
-      <LoginSidebar isOpen={isLoginSidebarOpen} handleClose={() => setLoginSidebarOpen(false)} />
+      <ProfileSidebar
+        isOpen={isProfileSidebarOpen}
+        isLoadingComplete={isLoadingComplete}
+        handleClose={() => setProfileSidebarOpen(false)}
+      />
       <SearchSidebar isOpen={isSearchSidebarOpen} handleClose={() => setSearchSidebarOpen(false)} />
       <Box as="main" marginTop={120} bg="white">
         {children}

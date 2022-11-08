@@ -10,3 +10,13 @@ export interface ProductCardProps {
   rating: number;
   image: string;
 }
+
+export interface ProfileSidebarProps {
+  isOpen: boolean;
+  handleClose: () => void;
+  isLoadingComplete: boolean;
+}
+
+export interface LoginFormProps {
+  handleFormChange: () => void;
+}

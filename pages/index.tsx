@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
-import { SiteApi } from "@shared/api";
+import { fetchHomePageData } from "@shared/api";
 import { HeroSmallCard } from "@shared/pages";
 import { CategoryTab } from "@components/Tabs";
 import { ProductCard } from "@components/Cards";
@@ -188,7 +188,7 @@ const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
 };
 
 export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async () => {
-  const { data } = await SiteApi.fetchHomePageData();
+  const { data } = await fetchHomePageData();
   return { props: { ...data } };
 };
 

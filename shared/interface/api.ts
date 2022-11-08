@@ -6,3 +6,19 @@ export interface FetchHomePageDataSuccess {
   slug: string;
   data: HomePageServerSideProps;
 }
+
+export interface AuthenticateSessionSuccess {
+  user: any;
+}
+
+export interface LoginSuccess {
+  user: any;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RegistrationSuccess {
+  user: any;
+  accessToken: string;
+  refreshToken: string;
+}

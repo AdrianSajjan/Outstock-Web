@@ -1,7 +1,10 @@
 import MainLayout from "@layout/Main";
 import type { AppProps } from "next/app";
 import { AppProvider } from "@shared/context";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { client } from "@shared/api";
+import { useAuthentication } from "@shared/hooks";
 
 const theme = extendTheme({
   fonts: {
@@ -46,14 +49,18 @@ const theme = extendTheme({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const isLoadingComplete = useAuthentication();
+
   return (
-    <ChakraProvider theme={theme}>
-      <AppProvider>
-        <MainLayout>
-          <Component {...pageProps} />
-        </MainLayout>
-      </AppProvider>
-    </ChakraProvider>
+    <QueryClientProvider client={client}>
+      <ChakraProvider theme={theme}>
+        <AppProvider>
+          <MainLayout isLoadingComplete={isLoadingComplete}>
+            <Component {...pageProps} />
+          </MainLayout>
+        </AppProvider>
+      </ChakraProvider>
+    </QueryClientProvider>
   );
 }
 
