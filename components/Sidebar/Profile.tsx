@@ -18,17 +18,20 @@ import {
 } from "@chakra-ui/react";
 import * as React from "react";
 import { login, register } from "@shared/api";
-import { isFieldInvalid } from "@shared/utils";
+import { isFieldInvalid, setSession } from "@shared/utils";
 import { useMutation } from "@tanstack/react-query";
 import { LoginFormValidation, RegistrationFormValidation } from "@shared/validations";
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
 import { ProfileFormProps, LoginFormState, LoginSuccess, ProfileSidebarProps, RegistrationFormState, RegistrationSuccess } from "@shared/interface";
 import { AxiosError } from "axios";
+import { useSessionStore } from "@shared/store/Session";
 
-const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthenticated }) => {
+const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const toast = useToast();
 
   const [isLoading, setLoading] = React.useState(false);
+
+  const { initializeSession } = useSessionStore();
 
   const mutatation = useMutation<LoginSuccess, AxiosError, LoginFormState>({ mutationFn: login });
 
@@ -41,9 +44,10 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthentica
     setLoading(true);
     mutatation.mutate(values, {
       onSuccess: (data) => {
+        initializeSession({ ...data });
+        setSession(data.accessToken, data.refreshToken);
         toast({ title: "Login Success", description: "You have been successfully logged in", status: "success", isClosable: true });
         actions.resetForm();
-        setAuthenticated(true);
       },
       onError: (error) => {
         if (Array.isArray(error)) {
@@ -101,11 +105,12 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthentica
   );
 };
 
-const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthenticated }) => {
+const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const toast = useToast();
 
   const [isLoading, setLoading] = React.useState(false);
 
+  const { initializeSession } = useSessionStore();
   const mutatation = useMutation<RegistrationSuccess, AxiosError, RegistrationFormState>({ mutationFn: register });
 
   const initialValues: RegistrationFormState = {
@@ -123,9 +128,10 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange, setAuthent
       { ...values, phoneNumber: `+91${values.phoneNumber}` },
       {
         onSuccess: (data) => {
+          initializeSession({ ...data });
+          setSession(data.accessToken, data.refreshToken);
           toast({ title: "Registration Success", description: "You have been successfully registered", status: "success", isClosable: true });
           actions.resetForm();
-          setAuthenticated(true);
         },
         onError: (error) => {
           if (Array.isArray(error)) {
@@ -227,7 +233,8 @@ const Profile = () => {
 
 const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ handleClose, isOpen, isLoadingComplete }) => {
   const [form, setForm] = React.useState(0);
-  const [isAuthenticated, setAuthenticated] = React.useState(false);
+
+  const { isAuthenticated } = useSessionStore();
 
   const handleFormChange = () => setForm((state) => (state === 0 ? 1 : 0));
 
@@ -240,9 +247,9 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ handleClose, isOpen, is
         ) : isAuthenticated ? (
           <Profile />
         ) : form === 0 ? (
-          <LoginForm handleFormChange={handleFormChange} setAuthenticated={setAuthenticated} />
+          <LoginForm handleFormChange={handleFormChange} />
         ) : (
-          <RegisterForm handleFormChange={handleFormChange} setAuthenticated={setAuthenticated} />
+          <RegisterForm handleFormChange={handleFormChange} />
         )}
       </DrawerContent>
     </Drawer>

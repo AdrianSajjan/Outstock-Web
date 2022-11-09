@@ -1,5 +1,7 @@
 import axios from "axios";
-import { getAccessToken, getRefreshToken } from "@shared/utils";
+import { getAccessToken, getRefreshToken, setSession } from "@shared/utils";
+import { OAuth2Success } from "@shared/interface";
+import { useSessionStore } from "@shared/store/Session";
 
 const api = axios.create({
   baseURL: "http://localhost:5000/",
@@ -33,7 +35,11 @@ api.interceptors.response.use(
 
     original._retry = true;
     const refreshToken = getRefreshToken();
-    const res = await api.post("/user/auth/oauth2", { refreshToken });
+    const res = await api.post<OAuth2Success>("/user/auth/oauth2", { refreshToken });
+
+    setSession(res.data.accessToken, res.data.refreshToken);
+    useSessionStore.setState((state) => ({ ...state, ...res.data }));
+
     return api(original);
   }
 );

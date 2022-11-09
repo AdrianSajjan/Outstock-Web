@@ -1,7 +1,7 @@
 import * as React from "react";
 import NextLink from "next/link";
 import type { NextPage } from "next";
-import { useAppContext } from "@shared/hooks";
+import { useAppStore } from "@shared/store";
 import { CartSidebar, ProfileSidebar, SearchSidebar } from "@components/Sidebar";
 import { RiFacebookCircleFill, RiInstagramFill, RiTwitterFill } from "react-icons/ri";
 import { Box, Button, Container, Heading, IconButton, Input, Link, Text } from "@chakra-ui/react";
@@ -12,8 +12,16 @@ interface MainLayoutProps {
 }
 
 const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) => {
-  const { isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, setProfileSidebarOpen, setCartSidebarOpen, setSearchSidebarOpen } =
-    useAppContext();
+  const { isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, setCartSidebarOpen, setProfileSidebarOpen, setSearchSidebarOpen } =
+    useAppStore();
+
+  React.useEffect(() => {
+    if (isProfileSidebarOpen || isCartSidebarOpen || isSearchSidebarOpen) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "auto";
+    }
+  }, [isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen]);
 
   return (
     <>
@@ -83,11 +91,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
         </Box>
       </Box>
       <CartSidebar isOpen={isCartSidebarOpen} handleClose={() => setCartSidebarOpen(false)} />
-      <ProfileSidebar
-        isOpen={isProfileSidebarOpen}
-        isLoadingComplete={isLoadingComplete}
-        handleClose={() => setProfileSidebarOpen(false)}
-      />
+      <ProfileSidebar isOpen={isProfileSidebarOpen} isLoadingComplete={isLoadingComplete} handleClose={() => setProfileSidebarOpen(false)} />
       <SearchSidebar isOpen={isSearchSidebarOpen} handleClose={() => setSearchSidebarOpen(false)} />
       <Box as="main" marginTop={120} bg="white">
         {children}
@@ -98,13 +102,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
             <Text textTransform="uppercase">Be in touch with us : </Text>
             <Box display="flex" flex={1} alignItems="center" justifyContent="center" columnGap={4}>
               <Input placeholder="Enter your email" backgroundColor="gray.600" border={0} w="full" maxW="sm" />
-              <Button
-                px="6"
-                variant="outline"
-                borderColor="gray.400"
-                color="gray.400"
-                _hover={{ backgroundColor: "gray.400", color: "black" }}
-              >
+              <Button px="6" variant="outline" borderColor="gray.400" color="gray.400" _hover={{ backgroundColor: "gray.400", color: "black" }}>
                 Join Us
               </Button>
             </Box>

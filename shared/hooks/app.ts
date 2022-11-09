@@ -1,16 +1,13 @@
 import * as React from "react";
 import { api } from "@shared/api";
-import { AppContext } from "@shared/context";
+import { useSessionStore } from "@shared/store/Session";
 import { AuthenticateSessionSuccess } from "@shared/interface";
-import { deleteSession, isSessionActive } from "@shared/utils";
-
-export const useAppContext = () => {
-  const app = React.useContext(AppContext);
-  return app;
-};
+import { destroySession, getAccessToken, getRefreshToken, isSessionActive } from "@shared/utils";
 
 export const useAuthentication = () => {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
+
+  const { initializeSession } = useSessionStore();
 
   React.useEffect(() => {
     (async () => {
@@ -18,8 +15,9 @@ export const useAuthentication = () => {
         const sessionActive = isSessionActive();
         if (!sessionActive) return;
         const res = await api.get<AuthenticateSessionSuccess>("/user/auth");
+        initializeSession({ user: res.data, isAuthenticated: true, accessToken: getAccessToken(), refreshToken: getRefreshToken() });
       } catch (error) {
-        deleteSession();
+        destroySession();
       } finally {
         setLoadingComplete(true);
       }

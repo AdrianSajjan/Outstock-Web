@@ -21,3 +21,8 @@ export interface RegistrationSuccess {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface OAuth2Success {
+  accessToken: string;
+  refreshToken: string;
+}

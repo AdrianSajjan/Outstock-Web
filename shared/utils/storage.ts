@@ -1,13 +1,13 @@
-import { deleteCookie, getCookie, hasCookie, setCookie, setCookies } from "cookies-next";
+import { deleteCookie, getCookie, hasCookie, setCookie } from "cookies-next";
 
 export const getAccessToken = () => {
   const accessToken = getCookie("accessToken");
-  return accessToken;
+  return accessToken ? accessToken.toString() : "";
 };
 
 export const getRefreshToken = () => {
   const refreshToken = getCookie("refreshToken");
-  return refreshToken;
+  return refreshToken ? refreshToken.toString() : "";
 };
 
 export const setSession = (accessToken: string, refreshToken: string) => {
@@ -15,7 +15,7 @@ export const setSession = (accessToken: string, refreshToken: string) => {
   setCookie("refreshToken", refreshToken);
 };
 
-export const deleteSession = () => {
+export const destroySession = () => {
   deleteCookie("accessToken");
   deleteCookie("refreshToken");
 };

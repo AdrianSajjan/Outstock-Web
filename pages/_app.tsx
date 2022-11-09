@@ -1,6 +1,5 @@
 import MainLayout from "@layout/Main";
 import type { AppProps } from "next/app";
-import { AppProvider } from "@shared/context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { client } from "@shared/api";
@@ -54,11 +53,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={client}>
       <ChakraProvider theme={theme}>
-        <AppProvider>
-          <MainLayout isLoadingComplete={isLoadingComplete}>
-            <Component {...pageProps} />
-          </MainLayout>
-        </AppProvider>
+        <MainLayout isLoadingComplete={isLoadingComplete}>
+          <Component {...pageProps} />
+        </MainLayout>
       </ChakraProvider>
     </QueryClientProvider>
   );

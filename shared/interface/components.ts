@@ -19,5 +19,4 @@ export interface ProfileSidebarProps {
 
 export interface ProfileFormProps {
   handleFormChange: () => void;
-  setAuthenticated: (state: boolean) => void;
 }

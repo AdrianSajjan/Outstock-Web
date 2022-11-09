@@ -11,6 +11,7 @@ import { Box, Button, Container, Grid, GridItem, Heading, TabList, TabPanel, Tab
 
 // Mock
 import { products } from "@shared/constants/home";
+
 // End of Mock
 
 const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
