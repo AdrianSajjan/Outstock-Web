@@ -23,7 +23,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
           <Grid h="2xl" gridGap={6} templateColumns="repeat(4, 1fr)" templateRows="repeat(2, 1fr)">
             <GridItem colSpan={2} rowSpan={2} position="relative">
               <Box boxSize="full" position="relative">
-                <Image layout="fill" src={hero.main.image} objectFit="cover" />
+                <Image layout="fill" src={hero.main.image} priority objectFit="cover" />
               </Box>
               <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="4" px="12" borderRadius="sm">
                 <Text textTransform="uppercase" fontWeight="semibold" fontSize="md" align="center" color="gray.600">

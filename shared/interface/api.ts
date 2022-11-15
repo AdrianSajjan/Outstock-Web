@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 import { Product, User } from "./entity";
 import { HomePageBanner, HomePageBlog, HomePageHero } from "./pages";
+import { FilterState } from "./state";
 
 export interface FetchHomePageDataSuccess {
   _id: string;
@@ -32,6 +33,10 @@ export interface RegistrationSuccess {
 export interface OAuth2Success {
   accessToken: string;
   refreshToken: string;
+}
+
+export interface FetchProductState extends FilterState {
+  category: string;
 }
 
 export type FetchProductsSuccess = Array<Product>;

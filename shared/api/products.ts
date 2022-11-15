@@ -1,8 +1,8 @@
+import { FetchProductsSuccess, FetchProductState, FetchProductSuccess } from "@shared/interface";
 import api from "./api";
-import { FetchProductsSuccess, FetchProductSuccess } from "@shared/interface";
 
-export const fetchProducts = async (query: any): Promise<FetchProductsSuccess> => {
-  const res = await api.get<FetchProductsSuccess>("/product");
+export const fetchProducts = async (query: Partial<FetchProductState>): Promise<FetchProductsSuccess> => {
+  const res = await api.get<FetchProductsSuccess>("/product", { params: query });
   return res.data;
 };
 

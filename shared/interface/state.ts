@@ -18,3 +18,26 @@ export interface RegistrationFormState {
   password: string;
   confirmPassword: string;
 }
+
+export interface ProductFilterState {
+  page: number;
+  limit: number;
+  price: {
+    $gt: number;
+    $lt: number;
+  };
+}
+
+export interface PriceState {
+  id: string;
+  value: PriceStateValue;
+}
+export interface PriceStateValue {
+  $gt?: number;
+  $lt?: number;
+}
+
+export interface FilterState {
+  sort: string;
+  price: PriceStateValue;
+}
