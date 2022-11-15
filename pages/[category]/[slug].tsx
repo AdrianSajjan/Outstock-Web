@@ -1,48 +1,42 @@
+import _ from "lodash";
 import Head from "next/head";
 import Image from "next/image";
-import { useMemo } from "react";
-import { NextPage } from "next";
+import { useState } from "react";
+import { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { PageHeader } from "@components/Layout";
 import { StarRating } from "@components/Rating";
 import { FaTape } from "react-icons/fa";
 import { Box, Button, ButtonGroup, chakra, Container, Divider, Flex, HStack, IconButton, SimpleGrid, Text, VStack } from "@chakra-ui/react";
-import {
-  HiChevronDown,
-  HiChevronUp,
-  HiOutlineChatAlt,
-  HiOutlineHeart,
-  HiOutlineMail,
-  HiOutlineRefresh,
-  HiOutlineTruck,
-} from "react-icons/hi";
+import { HiChevronDown, HiChevronUp, HiOutlineChatAlt, HiOutlineHeart, HiOutlineMail, HiOutlineRefresh, HiOutlineTruck } from "react-icons/hi";
+import { acceptedCategoryRoutes } from "@shared/constants";
+import { fetchProductBySlug } from "@shared/api";
+import { DetailsPageProps, DetailsPageServerSideProps } from "@shared/interface";
 
 const Span = chakra("span");
 
-const Details: NextPage = () => {
+const Details: NextPage<DetailsPageProps> = ({ data }) => {
   const router = useRouter();
-  const slug = (router.query.slug as string)?.replace(/-/g, " ");
 
-  const breadcrumb = useMemo(() => {
-    return [
-      { name: "Home", url: "/" },
-      { name: "Women", url: "/women" },
-      { name: slug, url: `/women/${slug}`, isCurrentPage: true },
-    ];
-  }, [router.query]);
+  const category = router.query.category as string;
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleIncreaseIndex = () => setActiveIndex((idx) => (idx === data.images.length - 1 ? 0 : idx + 1));
+  const handleDecreaseIndex = () => setActiveIndex((idx) => (idx === 0 ? data.images.length - 1 : idx - 1));
 
   return (
     <>
       <Head>
-        <title>Women&apos;s Shopping</title>
+        <title>{_.upperFirst(category)}&apos;s Shopping</title>
       </Head>
-      <PageHeader title={slug} breadcrumbs={breadcrumb} />
+      <PageHeader pathname={router.pathname} query={router.query} title={data.name} />
       <Box as="section" bg="white">
         <Box as="div" bg="gray.100" py="2">
           <Container maxW="container.2xl">
             <HStack justifyContent="space-between">
               <HStack spacing="4">
-                <StarRating total={5} rating={4} size={16} />
+                <StarRating total={5} rating={data.averageRating || 0} size={16} />
                 <Text>2 Reviews</Text>
               </HStack>
               <HStack spacing="4">
@@ -61,15 +55,26 @@ const Details: NextPage = () => {
             <HStack spacing={4} alignItems="start">
               <VStack spacing={4}>
                 <HStack spacing={4}>
-                  <IconButton aria-label="before" icon={<HiChevronUp />} />
-                  <IconButton aria-label="after" icon={<HiChevronDown />} />
+                  <IconButton aria-label="before" icon={<HiChevronUp />} onClick={handleDecreaseIndex} />
+                  <IconButton aria-label="after" icon={<HiChevronDown />} onClick={handleIncreaseIndex} />
                 </HStack>
-                <Box h="32" w="24" bg="red.100"></Box>
-                <Box h="32" w="24" bg="red.100"></Box>
-                <Box h="32" w="24" bg="red.100"></Box>
-                <Box h="32" w="24" bg="red.100"></Box>
+                {data.images.map((image, index) => (
+                  <Box
+                    as="button"
+                    onClick={() => setActiveIndex(index)}
+                    key={image + index}
+                    h="32"
+                    w="24"
+                    border={index === activeIndex ? "2px" : ""}
+                    position="relative"
+                  >
+                    <Image layout="fill" objectFit="cover" src={data.images[index]} />
+                  </Box>
+                ))}
               </VStack>
-              <Box w="full" h="full" maxH="2xl" bg="green.100"></Box>
+              <Box w="full" h="full" maxH="2xl" position="relative">
+                <Image layout="fill" objectFit="cover" src={data.images[activeIndex]} />
+              </Box>
             </HStack>
             <Box>
               <Text textTransform="uppercase">
@@ -98,7 +103,7 @@ const Details: NextPage = () => {
               <Divider mt="8" />
               <Flex alignItems="center" py="8">
                 <Text fontWeight="bold" fontSize="2xl">
-                  Rs. 1500
+                  {data.currency}. {data.price}
                 </Text>
                 <Button ml="8" mr="4" bg="black" color="white" px="10" colorScheme="blackAlpha">
                   Add to cart
@@ -145,19 +150,17 @@ const Details: NextPage = () => {
                 <Text fontWeight="medium" textTransform="uppercase" color="gray.500">
                   Description
                 </Text>
-                <Text mt="2">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque iure ab ipsam consectetur aliquid reiciendis, possimus
-                  cupiditate, debitis accusantium quia unde cumque dolore fugit vitae quo illo asperiores dolorum quod impedit, omnis eum
-                  nobis expedita assumenda perferendis. Consequuntur, quos maxime. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Atque iure ab ipsam consectetur aliquid reiciendis, possimus cupiditate, debitis accusantium quia unde cumque dolore fugit
-                  vitae quo illo asperiores dolorum quod impedit, omnis eum nobis expedita assumenda perferendis. Consequuntur, quos maxime.
-                </Text>
+                <Text mt="2">{data.description}</Text>
               </Box>
               <Divider />
               <Box py="8">
                 <Text textTransform="uppercase" fontWeight="bold">
                   Additional Information
                 </Text>
+                <HStack mt="4">
+                  <Text fontWeight="medium">Category: </Text>
+                  <Text textTransform="capitalize">{data.category.name}</Text>
+                </HStack>
                 <HStack mt="4">
                   <Text fontWeight="medium">Material: </Text>
                   <Text>100% Polyester</Text>
@@ -196,8 +199,8 @@ const Details: NextPage = () => {
                       </HStack>
                     </HStack>
                     <Text mt="4" color="gray.500">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Error molestias aliquid disticiom blanditiis suscipit unde,
-                      possimus deleniti vero consequatur corporis a id laudantium ad quid consectetur? Fuga dolore architecto velit.
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Error molestias aliquid disticiom blanditiis suscipit unde, possimus
+                      deleniti vero consequatur corporis a id laudantium ad quid consectetur? Fuga dolore architecto velit.
                     </Text>
                   </Box>
                   <Box>
@@ -211,9 +214,9 @@ const Details: NextPage = () => {
                       </HStack>
                     </HStack>
                     <Text mt="4" color="gray.500">
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos dolorum maxime recusandae cupiditate iusto incidunt
-                      quaerat corporis quo ducimus quis dolores adipisci nihil, ratione ullam, eum accusantium ex totam voluptatibus?
-                      Mollitia commodi voluptate nesciunt vero.
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos dolorum maxime recusandae cupiditate iusto incidunt quaerat
+                      corporis quo ducimus quis dolores adipisci nihil, ratione ullam, eum accusantium ex totam voluptatibus? Mollitia commodi
+                      voluptate nesciunt vero.
                     </Text>
                   </Box>
                 </VStack>
@@ -225,6 +228,29 @@ const Details: NextPage = () => {
       </Box>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<DetailsPageServerSideProps> = async ({ query }) => {
+  const slug = query.slug as string;
+  const category = query.category as string;
+
+  if (!acceptedCategoryRoutes.includes(category))
+    return {
+      notFound: true,
+    };
+
+  const data = await fetchProductBySlug(slug);
+
+  if (!data)
+    return {
+      notFound: true,
+    };
+
+  return {
+    props: {
+      data,
+    },
+  };
 };
 
 export default Details;

@@ -3,7 +3,7 @@ import { NextPage } from "next";
 
 const Error404: NextPage = () => {
   return (
-    <Box minH="calc(100vh - 560px)" display="flex" alignItems="center" justifyContent="center">
+    <Box minH="calc(100vh - 120px)" display="flex" alignItems="center" justifyContent="center">
       <Text fontWeight="bold" fontSize="3xl">
         404
       </Text>

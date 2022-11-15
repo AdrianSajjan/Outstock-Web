@@ -1,20 +1,17 @@
+import _ from "lodash";
 import Head from "next/head";
+import NextLink from "next/link";
 import Image from "next/image";
-import { fetchHomePageData } from "@shared/api";
 import { HeroSmallCard } from "@shared/pages";
 import { CategoryTab } from "@components/Tabs";
 import { ProductCard } from "@components/Cards";
 import type { GetServerSideProps, NextPage } from "next";
-import { HomePageProps, HomePageServerSideProps } from "@shared/interface";
+import { fetchHomePageData, fetchProducts } from "@shared/api";
 import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/hi";
+import { AxiosErrorResponse, HomePageProps, HomePageServerSideProps } from "@shared/interface";
 import { Box, Button, Container, Grid, GridItem, Heading, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
 
-// Mock
-import { products } from "@shared/constants/home";
-
-// End of Mock
-
-const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
+const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, women }) => {
   return (
     <>
       <Head>
@@ -88,9 +85,9 @@ const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
             <TabPanels mt="10">
               <TabPanel p="0">
                 <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
-                  {products.map(({ _id: id, ...rest }) => (
-                    <GridItem key={id}>
-                      <ProductCard {...{ ...rest, id }} />
+                  {women.map((product) => (
+                    <GridItem key={product._id}>
+                      <ProductCard {...product} />
                     </GridItem>
                   ))}
                 </Grid>
@@ -99,9 +96,11 @@ const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
               <TabPanel></TabPanel>
             </TabPanels>
           </Tabs>
-          <Button w="full" mt="12">
-            See All
-          </Button>
+          <NextLink href="/women" passHref>
+            <Button as="a" w="full" mt="12">
+              See All
+            </Button>
+          </NextLink>
         </Container>
       </Box>
 
@@ -119,9 +118,9 @@ const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
             <TabPanels mt="10">
               <TabPanel p="0">
                 <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
-                  {products.map(({ _id: id, ...rest }) => (
-                    <GridItem key={id}>
-                      <ProductCard {...{ ...rest, id }} />
+                  {men.map((product) => (
+                    <GridItem key={product._id}>
+                      <ProductCard {...product} />
                     </GridItem>
                   ))}
                 </Grid>
@@ -130,9 +129,11 @@ const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
               <TabPanel></TabPanel>
             </TabPanels>
           </Tabs>
-          <Button w="full" mt="12">
-            See All
-          </Button>
+          <NextLink href="/men" passHref>
+            <Button as="a" w="full" mt="12">
+              See All
+            </Button>
+          </NextLink>
         </Container>
       </Box>
 
@@ -189,8 +190,21 @@ const Home: NextPage<HomePageProps> = ({ banner, hero, blog }) => {
 };
 
 export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async () => {
-  const { data } = await fetchHomePageData();
-  return { props: { ...data } };
+  const promise = {
+    site: fetchHomePageData(),
+    men: fetchProducts({ gender: "men" }),
+    women: fetchProducts({ gender: "women" }),
+  };
+  try {
+    const data = _.zipObject(_.keys(promise), await Promise.all(_.values(promise)));
+    return { props: data as any };
+  } catch (e) {
+    const error = e as AxiosErrorResponse;
+    if (error.response)
+      if (error.response.status === 404) return { notFound: true };
+      else throw error.response.data.message;
+    else throw error.message;
+  }
 };
 
 export default Home;

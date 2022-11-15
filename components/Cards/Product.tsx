@@ -1,25 +1,33 @@
+import Image from "next/image";
 import { NextPage } from "next";
+import NextLink from "next/link";
+import { useCallback, useMemo } from "react";
 import { StarRating } from "@components/Rating";
 import { Box, HStack, Text } from "@chakra-ui/react";
-import { ProductCardProps } from "@shared/interface";
-import Image from "next/image";
+import { Category, ProductCardProps } from "@shared/interface";
 
-const ProductCard: NextPage<ProductCardProps> = ({ image, name, price, rating }) => {
+const ProductCard: NextPage<ProductCardProps> = ({ images, name, price, currency, slug, category, averageRating }) => {
+  const href = useMemo(() => {
+    return `/${category.name}/${slug}`;
+  }, [slug, category]);
+
   return (
-    <Box w="full" h="full">
-      <Box w="full" h="sm" position="relative">
-        <Image src={image} objectFit="cover" layout="fill" />
-      </Box>
-      <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
-        {name}
-      </Text>
-      <HStack alignItems="center" justifyContent="space-between" mt="1">
-        <Text fontWeight="bold" fontSize="lg">
-          ₹ {price}
+    <NextLink href={href} passHref>
+      <Box w="full" h="full" as="a">
+        <Box w="full" h="sm" position="relative">
+          <Image src={images[0]} objectFit="cover" layout="fill" />
+        </Box>
+        <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
+          {name}
         </Text>
-        <StarRating rating={rating} size={16} />
-      </HStack>
-    </Box>
+        <HStack alignItems="center" justifyContent="space-between" mt="1">
+          <Text fontWeight="bold" fontSize="lg">
+            {currency} {price}
+          </Text>
+          <StarRating rating={averageRating} size={16} />
+        </HStack>
+      </Box>
+    </NextLink>
   );
 };
 

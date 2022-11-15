@@ -9,4 +9,24 @@ export interface User {
   phoneNumber: string;
 }
 
-export interface Product {}
+export interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  sku: string;
+  averageRating: number;
+  images: Array<string>;
+  description: string;
+  price: number;
+  currency: string;
+  gender: Array<string>;
+  category: Category;
+  subcategory: Category;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  code: number;
+  parent?: Category;
+}

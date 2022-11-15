@@ -1,15 +1,12 @@
+import { Product } from "./entity";
+
 export interface BreadCrumbProp {
   name: string;
   url: string;
   isCurrentPage?: boolean;
 }
 
-export interface ProductCardProps {
-  name: string;
-  price: string;
-  rating: number;
-  image: string;
-}
+export interface ProductCardProps extends Product {}
 
 export interface ProfileSidebarProps {
   isOpen: boolean;

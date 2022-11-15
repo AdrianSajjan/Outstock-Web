@@ -1,13 +1,16 @@
+import _, { divide } from "lodash";
 import Head from "next/head";
 import * as React from "react";
-import { NextPage } from "next";
-import NextLink from "next/link";
-import { HiChevronDown, HiChevronRight, HiOutlineFilter, HiOutlineViewGrid, HiOutlineViewList, HiOutlineX } from "react-icons/hi";
+import { GetServerSideProps, NextPage } from "next";
+import { HiChevronDown, HiOutlineFilter, HiOutlineViewGrid, HiOutlineViewList, HiOutlineX } from "react-icons/hi";
+import { StarRating } from "@components/Rating";
+import { PageHeader } from "@components/Layout";
+import { ProductCard } from "@components/Cards";
+import { ProductPageProps, ProductPageServerSideProps } from "@shared/interface";
+import { useRouter } from "next/router";
+import { acceptedCategoryRoutes } from "@shared/constants";
 import {
   Box,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Button,
   ButtonGroup,
   Checkbox,
@@ -22,36 +25,35 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
   VStack,
   Collapse,
 } from "@chakra-ui/react";
-import { StarRating } from "@components/Rating";
-import { PageHeader } from "@components/Layout";
-import { ProductCard } from "@components/Cards";
+import { fetchProducts } from "@shared/api";
+import { useQuery } from "@tanstack/react-query";
 
-const CATEGORIES = [
+const Sort = [
   { value: "bestsellers", label: "Bestsellers" },
   { value: "newArrivals", label: "New Arrivals" },
   { value: "specials", label: "Specials" },
 ];
 
-const breadcrumbs = [
-  { name: "Home", url: "/" },
-  { name: "Women", url: "/women", isCurrentPage: true },
-];
+const Products: NextPage<ProductPageProps> = ({ data }) => {
+  const router = useRouter();
 
-const Women: NextPage = () => {
+  const title = router.query.category as string;
+
   const [view, setView] = React.useState(1);
   const [filterOpen, setFilterOpen] = React.useState(false);
-  const [category, setCategory] = React.useState(CATEGORIES[0]);
+  const [sort, setSort] = React.useState(Sort[0]);
+
+  const query = useQuery({ queryKey: ["products", title, sort], queryFn: () => fetchProducts({}), initialData: data });
 
   return (
     <>
       <Head>
-        <title>Women&apos;s Shopping</title>
+        <title>{_.upperFirst(title)}&apos;s Shopping</title>
       </Head>
-      <PageHeader title="Women" breadcrumbs={breadcrumbs} />
+      <PageHeader title={title} pathname={router.pathname} query={router.query} />
       <Box as="section" bg="white">
         <Container maxW="container.2xl" py="8">
           <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -83,17 +85,11 @@ const Women: NextPage = () => {
             <Box w="48" display="flex" justifyContent="flex-end">
               <Menu>
                 <MenuButton as={Button} variant="ghost" color="gray.600" rightIcon={<HiChevronDown />}>
-                  {category.label}
+                  {sort.label}
                 </MenuButton>
                 <MenuList>
-                  {CATEGORIES.map(({ label, value }) => (
-                    <MenuItem
-                      textTransform="uppercase"
-                      fontWeight="medium"
-                      py="3"
-                      key={value}
-                      onClick={() => setCategory({ label, value })}
-                    >
+                  {Sort.map(({ label, value }) => (
+                    <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={value} onClick={() => setSort({ label, value })}>
                       {label}
                     </MenuItem>
                   ))}
@@ -229,9 +225,11 @@ const Women: NextPage = () => {
           </Collapse>
           <Box pt="16">
             <Grid templateColumns="repeat(4, 1fr)" gridGap={10}>
-              <GridItem>
-                <ProductCard name="Mercury Tee" price="3750" rating={4} image="/products/sample-tee-shirt.webp" />
-              </GridItem>
+              {query.data.map((product) => (
+                <GridItem key={product._id}>
+                  <ProductCard {...product} />
+                </GridItem>
+              ))}
             </Grid>
           </Box>
           <Box pt="16" pb="16">
@@ -243,4 +241,21 @@ const Women: NextPage = () => {
   );
 };
 
-export default Women;
+export const getServerSideProps: GetServerSideProps<ProductPageServerSideProps> = async ({ query }) => {
+  const category = query.category as string;
+
+  if (!acceptedCategoryRoutes.includes(category))
+    return {
+      notFound: true,
+    };
+
+  const data = await fetchProducts({ category });
+
+  return {
+    props: {
+      data,
+    },
+  };
+};
+
+export default Products;
