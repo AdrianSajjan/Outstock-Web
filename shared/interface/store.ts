@@ -19,7 +19,7 @@ export interface SessionStore {
   accessToken: string | null;
   refreshToken: string | null;
   initializeSession: (data: InitializeSession) => void;
-  deleteSession: () => void;
+  reauthenticateSession: () => void;
   updateSessionTokens: (data: UpdateSessionTokens) => void;
   updateSessionUser: (data: UpdateSessionUser) => void;
 }

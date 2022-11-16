@@ -19,6 +19,10 @@ export interface RegistrationFormState {
   confirmPassword: string;
 }
 
+export interface LogoutState {
+  refreshToken: string;
+}
+
 export interface ProductFilterState {
   page: number;
   limit: number;

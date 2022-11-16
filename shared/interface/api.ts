@@ -30,6 +30,10 @@ export interface RegistrationSuccess {
   refreshToken: string;
 }
 
+export interface LogoutSuccess {
+  message: string;
+}
+
 export interface OAuth2Success {
   accessToken: string;
   refreshToken: string;

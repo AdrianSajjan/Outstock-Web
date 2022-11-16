@@ -1,9 +1,9 @@
 import MainLayout from "@layout/Main";
+import { client } from "@shared/api";
 import type { AppProps } from "next/app";
+import { useAuthentication } from "@shared/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { client } from "@shared/api";
-import { useAuthentication } from "@shared/hooks";
 
 const theme = extendTheme({
   fonts: {

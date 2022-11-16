@@ -11,8 +11,6 @@ export const getRefreshToken = () => {
 };
 
 export const setSession = (accessToken: string, refreshToken: string) => {
-  deleteCookie("access-token");
-  deleteCookie("refresh-token");
   setCookie("access-token", accessToken);
   setCookie("refresh-token", refreshToken);
 };
