@@ -1,8 +1,8 @@
-import { Sort } from "@shared/constants";
+import { Subcategory } from "@shared/constants";
 import { FilterState, PriceState, PriceStateValue } from "@shared/interface";
 import { useState, useMemo, Dispatch, SetStateAction } from "react";
 
-interface SortItem {
+interface SubcategoryItem {
   label: string;
   value: string;
 }
@@ -11,26 +11,26 @@ export interface UseFilter {
   view: number;
   open: boolean;
   prices: PriceState[];
-  sort: SortItem;
+  subcategory: SubcategoryItem;
   filter: FilterState;
   handleFilterToggle: () => void;
   handleGridView: () => void;
   handleListView: () => void;
   setPrices: Dispatch<SetStateAction<PriceState[]>>;
-  setSort: Dispatch<SetStateAction<SortItem>>;
+  setSubcategory: Dispatch<SetStateAction<SubcategoryItem>>;
 }
 
 export const useFilter = (): UseFilter => {
   const [view, setView] = useState(0);
   const [open, setOpen] = useState(false);
-  const [sort, setSort] = useState(Sort[0]);
+  const [subcategory, setSubcategory] = useState(Subcategory[0]);
   const [prices, setPrices] = useState<PriceState[]>([]);
 
   const filter = useMemo(() => {
     let changeLessThan = true;
     const temp: PriceStateValue = { $gt: undefined, $lt: undefined };
     return {
-      sort: sort.value,
+      subcategory: subcategory.value,
       price: prices.reduce(
         (result, { value }) => {
           if (value.$lt === undefined) {
@@ -57,11 +57,11 @@ export const useFilter = (): UseFilter => {
         { $lt: undefined, $gt: undefined } as PriceStateValue
       ),
     };
-  }, [sort, prices]);
+  }, [subcategory, prices]);
 
   const handleListView = () => setView(0);
   const handleGridView = () => setView(1);
   const handleFilterToggle = () => setOpen((state) => !state);
 
-  return { sort, view, open, prices, filter, handleFilterToggle, handleGridView, handleListView, setPrices, setSort };
+  return { subcategory, view, open, prices, filter, handleFilterToggle, handleGridView, handleListView, setPrices, setSubcategory };
 };

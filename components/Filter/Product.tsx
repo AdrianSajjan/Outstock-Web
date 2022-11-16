@@ -16,14 +16,14 @@ import {
   MenuList,
   VStack,
 } from "@chakra-ui/react";
-import { Colors, Prices, Sort } from "@shared/constants";
+import { Colors, Prices, Subcategory } from "@shared/constants";
 import { UseFilter } from "@shared/hooks";
 
 interface ProductFilterAndSortProps extends Omit<UseFilter, "filter"> {}
 
 const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
-  sort,
-  setSort,
+  subcategory,
+  setSubcategory,
   handleFilterToggle,
   handleGridView,
   handleListView,
@@ -49,15 +49,15 @@ const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
         <Box w="48" display="flex" justifyContent="flex-end">
           <Menu>
             <MenuButton as={Button} variant="ghost" color="gray.600" rightIcon={<HiChevronDown />}>
-              {sort.label}
+              {subcategory.label}
             </MenuButton>
             <MenuList>
-              {Sort.map(({ label, value }) => {
-                const handleSortToggle = () => {
-                  if (sort.value !== value) setSort({ label, value });
+              {Subcategory.map(({ label, value }) => {
+                const handleSubcategoryToggle = () => {
+                  if (subcategory.value !== value) setSubcategory({ label, value });
                 };
                 return (
-                  <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={value} onClick={handleSortToggle}>
+                  <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={value} onClick={handleSubcategoryToggle}>
                     {label}
                   </MenuItem>
                 );

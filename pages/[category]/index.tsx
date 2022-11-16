@@ -3,7 +3,7 @@ import { ProductCard } from "@components/Cards";
 import { ProductFilterAndSort } from "@components/Filter";
 import { PageHeader } from "@components/Layout";
 import { fetchProducts } from "@shared/api";
-import { acceptedCategoryRoutes, Sort } from "@shared/constants";
+import { acceptedCategoryRoutes } from "@shared/constants";
 import { useFilter } from "@shared/hooks";
 import { ProductPageProps, ProductPageServerSideProps } from "@shared/interface";
 import { useQuery } from "@tanstack/react-query";
@@ -17,10 +17,10 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
   const router = useRouter();
   const category = router.query.category as string;
 
-  const { sort, filter, ...rest } = useFilter();
+  const { subcategory, filter, ...rest } = useFilter();
 
   const query = useQuery({
-    queryKey: ["products", category, filter.sort, ...Object.values(filter.price)],
+    queryKey: ["products", category, filter.subcategory, ...Object.values(filter.price)],
     queryFn: () => fetchProducts({ category, ...filter }),
     initialData: data,
     refetchOnWindowFocus: false,
@@ -34,7 +34,7 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
       <PageHeader title={category} pathname={router.pathname} query={router.query} />
       <Box as="section" bg="white">
         <Container maxW="container.2xl" py="8">
-          <ProductFilterAndSort {...{ sort, ...rest }} />
+          <ProductFilterAndSort {...{ subcategory, ...rest }} />
           <Box pt="16">
             <Grid templateColumns="repeat(4, 1fr)" gridGap={10}>
               {query.data.map((product) => (

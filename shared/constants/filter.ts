@@ -1,4 +1,4 @@
-export const Sort = [
+export const Subcategory = [
   { value: "bestsellers", label: "Bestsellers" },
   { value: "new-arrivals", label: "New Arrivals" },
   { value: "specials", label: "Specials" },
