@@ -15,16 +15,18 @@ import {
   Spinner,
   Text,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import * as React from "react";
+import Image from "next/image";
+import { AxiosError } from "axios";
 import { login, register } from "@shared/api";
-import { isFieldInvalid, setSession } from "@shared/utils";
+import { useSessionStore } from "@shared/store";
 import { useMutation } from "@tanstack/react-query";
+import { isFieldInvalid, setSession } from "@shared/utils";
 import { LoginFormValidation, RegistrationFormValidation } from "@shared/validations";
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
 import { ProfileFormProps, LoginFormState, LoginSuccess, ProfileSidebarProps, RegistrationFormState, RegistrationSuccess } from "@shared/interface";
-import { AxiosError } from "axios";
-import { useSessionStore } from "@shared/store/Session";
 
 const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
@@ -44,10 +46,10 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
     setLoading(true);
     mutatation.mutate(values, {
       onSuccess: (data) => {
-        initializeSession({ ...data });
-        setSession(data.accessToken, data.refreshToken);
         toast({ title: "Login Success", description: "You have been successfully logged in", status: "success" });
         actions.resetForm();
+        setSession(data.accessToken, data.refreshToken);
+        initializeSession({ ...data });
       },
       onError: (error) => {
         if (!Array.isArray(error)) return toast({ title: "Login Failed", description: error, status: "error" });
@@ -125,10 +127,10 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
       { ...values, phoneNumber: `+91${values.phoneNumber}` },
       {
         onSuccess: (data) => {
-          initializeSession({ ...data });
-          setSession(data.accessToken, data.refreshToken);
           toast({ title: "Registration Success", description: "You have been successfully registered", status: "success" });
           actions.resetForm();
+          setSession(data.accessToken, data.refreshToken);
+          initializeSession({ ...data });
         },
         onError: (error) => {
           if (!Array.isArray(error)) return toast({ title: "Registration Failed", description: error, status: "error" });
@@ -221,7 +223,33 @@ const LoadingState = () => {
 };
 
 const Profile = () => {
-  return <Box>Show Profile</Box>;
+  return (
+    <>
+      <HStack bg="black" px="6" h="14" justifyContent="space-between" alignItems="center">
+        <Text size="lg" fontWeight="medium" color="white" textTransform="uppercase">
+          Profile
+        </Text>
+        <DrawerCloseButton color="white" position="initial" />
+      </HStack>
+      <DrawerBody>
+        <VStack mt="6">
+          <Box position="relative" h="32" w="32">
+            <Image src="http://localhost:5000/static/profile/default-avatar.jpg" layout="fill" objectFit="contain" />
+          </Box>
+        </VStack>
+        <VStack spacing="4" mt="8">
+          <Button isFullWidth>Edit Profile</Button>
+          <Button isFullWidth>My Orders</Button>
+          <Button isFullWidth>My Payments</Button>
+        </VStack>
+      </DrawerBody>
+      <DrawerFooter>
+        <Button isFullWidth mt="2" bg="black" color="white" colorScheme="blackAlpha">
+          Logout
+        </Button>
+      </DrawerFooter>
+    </>
+  );
 };
 
 const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ handleClose, isOpen, isLoadingComplete }) => {

@@ -15,7 +15,7 @@ export const useAuthentication = () => {
         const sessionActive = isSessionActive();
         if (!sessionActive) return;
         const res = await api.get<AuthenticateSessionSuccess>("/user/auth");
-        initializeSession({ user: res.data, isAuthenticated: true, accessToken: getAccessToken(), refreshToken: getRefreshToken() });
+        initializeSession({ user: res.data, accessToken: getAccessToken(), refreshToken: getRefreshToken() });
       } catch (error) {
         destroySession();
       } finally {

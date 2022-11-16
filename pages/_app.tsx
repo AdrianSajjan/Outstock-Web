@@ -51,13 +51,13 @@ function MyApp({ Component, pageProps }: AppProps) {
   const isLoadingComplete = useAuthentication();
 
   return (
-    <QueryClientProvider client={client}>
-      <ChakraProvider theme={theme}>
+    <ChakraProvider theme={theme}>
+      <QueryClientProvider client={client}>
         <MainLayout isLoadingComplete={isLoadingComplete}>
           <Component {...pageProps} />
         </MainLayout>
-      </ChakraProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ChakraProvider>
   );
 }
 

@@ -1,15 +1,14 @@
 import _ from "lodash";
 import Head from "next/head";
-import NextLink from "next/link";
 import Image from "next/image";
+import NextLink from "next/link";
 import { HeroSmallCard } from "@shared/pages";
-import { CategoryTab } from "@components/Tabs";
 import { ProductCard } from "@components/Cards";
 import type { GetServerSideProps, NextPage } from "next";
 import { fetchHomePageData, fetchProducts } from "@shared/api";
 import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/hi";
+import { Box, Button, Container, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import { AxiosErrorResponse, HomePageProps, HomePageServerSideProps } from "@shared/interface";
-import { Box, Button, Container, Grid, GridItem, Heading, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
 
 const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, women }) => {
   return (
@@ -171,7 +170,6 @@ export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = a
   };
   try {
     const data: any = _.zipObject(_.keys(promise), await Promise.all(_.values(promise)));
-    console.log(data.women);
     return { props: data };
   } catch (e) {
     const error = e as AxiosErrorResponse;

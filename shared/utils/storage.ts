@@ -1,26 +1,28 @@
 import { deleteCookie, getCookie, hasCookie, setCookie } from "cookies-next";
 
 export const getAccessToken = () => {
-  const accessToken = getCookie("accessToken");
+  const accessToken = getCookie("access-token");
   return accessToken ? accessToken.toString() : "";
 };
 
 export const getRefreshToken = () => {
-  const refreshToken = getCookie("refreshToken");
+  const refreshToken = getCookie("refresh-token");
   return refreshToken ? refreshToken.toString() : "";
 };
 
 export const setSession = (accessToken: string, refreshToken: string) => {
-  setCookie("accessToken", accessToken);
-  setCookie("refreshToken", refreshToken);
+  deleteCookie("access-token");
+  deleteCookie("refresh-token");
+  setCookie("access-token", accessToken);
+  setCookie("refresh-token", refreshToken);
 };
 
 export const destroySession = () => {
-  deleteCookie("accessToken");
-  deleteCookie("refreshToken");
+  deleteCookie("access-token");
+  deleteCookie("refresh-token");
 };
 
 export const isSessionActive = () => {
-  const active = hasCookie("accessToken") || hasCookie("refreshToken");
+  const active = hasCookie("access-token") || hasCookie("refresh-token");
   return active;
 };
