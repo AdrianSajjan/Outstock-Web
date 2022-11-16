@@ -20,7 +20,7 @@ export interface HomePageSiteProps {
 export interface HomePageProps extends HomePageServerSideProps {}
 
 export interface ProductPageServerSideProps {
-  data: Array<Product>;
+  data: FetchProductsSuccess;
 }
 
 export interface ProductPageProps extends ProductPageServerSideProps {}

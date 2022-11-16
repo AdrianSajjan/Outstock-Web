@@ -35,11 +35,17 @@ export interface OAuth2Success {
   refreshToken: string;
 }
 
-export interface FetchProductState extends FilterState {
+export interface FetchProductState extends Partial<FilterState> {
   category: string;
+  page: number;
 }
 
-export type FetchProductsSuccess = Array<Product>;
+export interface FetchProductsSuccess {
+  total: number;
+  nextPage: number;
+  products: Array<Product>;
+}
+
 export type FetchProductSuccess = Product;
 
 export interface ErrorResponse {

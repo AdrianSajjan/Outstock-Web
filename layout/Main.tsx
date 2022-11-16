@@ -4,8 +4,9 @@ import type { NextPage } from "next";
 import { useAppStore } from "@shared/store";
 import { CartSidebar, ProfileSidebar, SearchSidebar } from "@components/Sidebar";
 import { RiFacebookCircleFill, RiInstagramFill, RiTwitterFill } from "react-icons/ri";
-import { Box, Button, Container, Heading, IconButton, Input, Link, Text } from "@chakra-ui/react";
+import { Box, Button, Container, Heading, IconButton, Input, Link, Text, useToast } from "@chakra-ui/react";
 import { HiClock, HiLocationMarker, HiMail, HiPhone, HiSearch, HiShoppingBag, HiUser } from "react-icons/hi";
+import { useSessionStore } from "@shared/store/Session";
 
 interface MainLayoutProps {
   isLoadingComplete: boolean;
@@ -14,6 +15,16 @@ interface MainLayoutProps {
 const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) => {
   const { isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, setCartSidebarOpen, setProfileSidebarOpen, setSearchSidebarOpen } =
     useAppStore();
+
+  const { isAuthenticated } = useSessionStore();
+
+  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
+
+  const handleCartSidebarOpen = () => {
+    if (isAuthenticated) return setCartSidebarOpen(true);
+    toast({ title: "Login or Register", status: "info", description: "Please login or register to view your cart" });
+    setProfileSidebarOpen(true);
+  };
 
   React.useEffect(() => {
     if (isProfileSidebarOpen || isCartSidebarOpen || isSearchSidebarOpen) {
@@ -85,7 +96,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
             <Box display="flex" columnGap={4}>
               <IconButton aria-label="user" onClick={() => setProfileSidebarOpen(true)} icon={<HiUser size={24} />} variant="ghost" />
               <IconButton aria-label="search" onClick={() => setSearchSidebarOpen(true)} icon={<HiSearch size={24} />} variant="ghost" />
-              <IconButton aria-label="cart" onClick={() => setCartSidebarOpen(true)} icon={<HiShoppingBag size={24} />} variant="ghost" />
+              <IconButton aria-label="cart" onClick={handleCartSidebarOpen} icon={<HiShoppingBag size={24} />} variant="ghost" />
             </Box>
           </Container>
         </Box>

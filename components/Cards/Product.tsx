@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { NextPage } from "next";
 import NextLink from "next/link";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { StarRating } from "@components/Rating";
 import { Box, HStack, Text } from "@chakra-ui/react";
 import { Category, ProductCardProps } from "@shared/interface";
@@ -22,7 +22,7 @@ const ProductCard: NextPage<ProductCardProps> = ({ images, name, price, currency
         </Text>
         <HStack alignItems="center" justifyContent="space-between" mt="1">
           <Text fontWeight="bold" fontSize="lg">
-            {currency} {price}
+            {currency} {price.toFixed(2)}
           </Text>
           <StarRating rating={averageRating} size={16} />
         </HStack>

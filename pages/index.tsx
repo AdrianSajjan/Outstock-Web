@@ -73,29 +73,16 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
-          <Heading textTransform="uppercase" size="lg">
+          <Heading textTransform="uppercase" size="lg" mb="12">
             Women&apos;s
           </Heading>
-          <Tabs variant="unstyled">
-            <TabList justifyContent="flex-end" columnGap={8}>
-              <CategoryTab>New Arrivals</CategoryTab>
-              <CategoryTab>Bestseller</CategoryTab>
-              <CategoryTab>Specials</CategoryTab>
-            </TabList>
-            <TabPanels mt="10">
-              <TabPanel p="0">
-                <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
-                  {women.map((product) => (
-                    <GridItem key={product._id}>
-                      <ProductCard {...product} />
-                    </GridItem>
-                  ))}
-                </Grid>
-              </TabPanel>
-              <TabPanel></TabPanel>
-              <TabPanel></TabPanel>
-            </TabPanels>
-          </Tabs>
+          <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
+            {women.products.map((product) => (
+              <GridItem key={product._id}>
+                <ProductCard {...product} />
+              </GridItem>
+            ))}
+          </Grid>
           <NextLink href="/women" passHref>
             <Button as="a" w="full" mt="12">
               See All
@@ -106,29 +93,16 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
       <Box as="section">
         <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
-          <Heading textTransform="uppercase" size="lg">
+          <Heading textTransform="uppercase" size="lg" mb="12">
             Men&apos;s
           </Heading>
-          <Tabs variant="unstyled">
-            <TabList justifyContent="flex-end" columnGap={8}>
-              <CategoryTab>New Arrivals</CategoryTab>
-              <CategoryTab>Bestseller</CategoryTab>
-              <CategoryTab>Specials</CategoryTab>
-            </TabList>
-            <TabPanels mt="10">
-              <TabPanel p="0">
-                <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
-                  {men.map((product) => (
-                    <GridItem key={product._id}>
-                      <ProductCard {...product} />
-                    </GridItem>
-                  ))}
-                </Grid>
-              </TabPanel>
-              <TabPanel></TabPanel>
-              <TabPanel></TabPanel>
-            </TabPanels>
-          </Tabs>
+          <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
+            {men.products.map((product) => (
+              <GridItem key={product._id}>
+                <ProductCard {...product} />
+              </GridItem>
+            ))}
+          </Grid>
           <NextLink href="/men" passHref>
             <Button as="a" w="full" mt="12">
               See All
@@ -192,12 +166,13 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async () => {
   const promise = {
     site: fetchHomePageData(),
-    men: fetchProducts({ gender: "men" }),
-    women: fetchProducts({ gender: "women" }),
+    men: fetchProducts({ category: "men", page: 1 }),
+    women: fetchProducts({ category: "women", page: 1 }),
   };
   try {
-    const data = _.zipObject(_.keys(promise), await Promise.all(_.values(promise)));
-    return { props: data as any };
+    const data: any = _.zipObject(_.keys(promise), await Promise.all(_.values(promise)));
+    console.log(data.women);
+    return { props: data };
   } catch (e) {
     const error = e as AxiosErrorResponse;
     if (error.response)

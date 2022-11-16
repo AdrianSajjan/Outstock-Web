@@ -16,14 +16,14 @@ import {
   MenuList,
   VStack,
 } from "@chakra-ui/react";
-import { Colors, Prices, Subcategory } from "@shared/constants";
+import { Prices, Sort } from "@shared/constants";
 import { UseFilter } from "@shared/hooks";
 
 interface ProductFilterAndSortProps extends Omit<UseFilter, "filter"> {}
 
 const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
-  subcategory,
-  setSubcategory,
+  sort,
+  setSort,
   handleFilterToggle,
   handleGridView,
   handleListView,
@@ -49,15 +49,15 @@ const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
         <Box w="48" display="flex" justifyContent="flex-end">
           <Menu>
             <MenuButton as={Button} variant="ghost" color="gray.600" rightIcon={<HiChevronDown />}>
-              {subcategory.label}
+              {sort.label}
             </MenuButton>
             <MenuList>
-              {Subcategory.map(({ label, value }) => {
-                const handleSubcategoryToggle = () => {
-                  if (subcategory.value !== value) setSubcategory({ label, value });
+              {Sort.map(({ label, value }) => {
+                const handleSortToggle = () => {
+                  if (sort.value !== value) setSort({ label, value });
                 };
                 return (
-                  <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={value} onClick={handleSubcategoryToggle}>
+                  <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={value} onClick={handleSortToggle}>
                     {label}
                   </MenuItem>
                 );
@@ -68,26 +68,6 @@ const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
       </Box>
       <Collapse in={open} animateOpacity>
         <HStack spacing={8} flexWrap="wrap" bg="gray.50" px="12" py="8" mt="8" alignItems="flex-start">
-          <Box flex={1}>
-            <Heading size="sm" mb="6" textTransform="uppercase">
-              Color
-            </Heading>
-            <CheckboxGroup>
-              <VStack px="2" alignItems="flex-start" spacing={4} maxH="80" overflowY="auto">
-                {Colors.map(({ code, label, value }) => {
-                  const handleCheckbox = () => {};
-                  return (
-                    <HStack key={value}>
-                      <Checkbox w="24" value={value} onChange={handleCheckbox}>
-                        {label}
-                      </Checkbox>
-                      <Box h="4" w="4" borderRadius="full" bg={code} />
-                    </HStack>
-                  );
-                })}
-              </VStack>
-            </CheckboxGroup>
-          </Box>
           <Box flex={1}>
             <Heading size="sm" mb="6" textTransform="uppercase">
               Price
@@ -115,3 +95,24 @@ const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
 };
 
 export default ProductFilterAndSort;
+
+// <Box flex={1}>
+//   <Heading size="sm" mb="6" textTransform="uppercase">
+//     Color
+//   </Heading>
+//   <CheckboxGroup>
+//     <VStack px="2" alignItems="flex-start" spacing={4} maxH="80" overflowY="auto">
+//       {Colors.map(({ code, label, value }) => {
+//         const handleCheckbox = () => {};
+//         return (
+//           <HStack key={value}>
+//             <Checkbox w="24" value={value} onChange={handleCheckbox}>
+//               {label}
+//             </Checkbox>
+//             <Box h="4" w="4" borderRadius="full" bg={code} />
+//           </HStack>
+//         );
+//       })}
+//     </VStack>
+//   </CheckboxGroup>
+// </Box>

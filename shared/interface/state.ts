@@ -38,6 +38,6 @@ export interface PriceStateValue {
 }
 
 export interface FilterState {
-  subcategory: string;
-  price: PriceStateValue;
+  sort: string;
+  price: string | Array<PriceStateValue>;
 }

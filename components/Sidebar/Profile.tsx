@@ -27,7 +27,7 @@ import { AxiosError } from "axios";
 import { useSessionStore } from "@shared/store/Session";
 
 const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
-  const toast = useToast();
+  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
   const [isLoading, setLoading] = React.useState(false);
 
@@ -46,14 +46,11 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
       onSuccess: (data) => {
         initializeSession({ ...data });
         setSession(data.accessToken, data.refreshToken);
-        toast({ title: "Login Success", description: "You have been successfully logged in", status: "success", isClosable: true });
+        toast({ title: "Login Success", description: "You have been successfully logged in", status: "success" });
         actions.resetForm();
       },
       onError: (error) => {
-        if (Array.isArray(error)) {
-        } else {
-          toast({ title: "Login Failed", description: error, status: "error", isClosable: true });
-        }
+        if (!Array.isArray(error)) return toast({ title: "Login Failed", description: error, status: "error" });
       },
       onSettled: () => {
         setLoading(false);
@@ -106,7 +103,7 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
 };
 
 const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
-  const toast = useToast();
+  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
   const [isLoading, setLoading] = React.useState(false);
 
@@ -130,14 +127,11 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
         onSuccess: (data) => {
           initializeSession({ ...data });
           setSession(data.accessToken, data.refreshToken);
-          toast({ title: "Registration Success", description: "You have been successfully registered", status: "success", isClosable: true });
+          toast({ title: "Registration Success", description: "You have been successfully registered", status: "success" });
           actions.resetForm();
         },
         onError: (error) => {
-          if (Array.isArray(error)) {
-          } else {
-            toast({ title: "Registration Failed", description: error, status: "error", isClosable: true });
-          }
+          if (!Array.isArray(error)) return toast({ title: "Registration Failed", description: error, status: "error" });
         },
         onSettled: () => {
           setLoading(false);
@@ -159,7 +153,6 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
         <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={RegistrationFormValidation}>
           {(formik) => (
             <Form>
-              {JSON.stringify(formik.errors)}
               <FormControl mt="6" isInvalid={isFieldInvalid(formik, "firstName")}>
                 <FormLabel textTransform="uppercase" htmlFor="first-name">
                   First Name

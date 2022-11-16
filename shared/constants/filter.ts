@@ -1,72 +1,59 @@
-export const Subcategory = [
-  { value: "bestsellers", label: "Bestsellers" },
-  { value: "new-arrivals", label: "New Arrivals" },
-  { value: "specials", label: "Specials" },
-];
+export const Sort = [{ value: { createdAt: 1 }, label: "New Arrivals" }];
 
 export const Prices = [
   {
-    id: "1",
-    label: "Rs. 50,000 + ",
-    value: {
-      $gt: 50000,
-      $lt: undefined,
-    },
-  },
-  {
     id: "2",
-    label: "Rs. 30,000 - Rs. 50,000",
+    label: "Rs. 10,000 +",
     value: {
-      $gt: 30000,
-      $lt: 50000,
+      $gt: 10000,
     },
   },
   {
     id: "3",
-    label: "Rs. 15,000 - Rs. 30,000",
+    label: "Rs. 5,000 - Rs. 10,000",
     value: {
-      $gt: 15000,
-      $lt: 30000,
+      $gt: 5000,
+      $lt: 10001,
     },
   },
   {
     id: "4",
-    label: "Rs. 7,500 - Rs. 15,000",
+    label: "Rs. 3,000 - Rs. 5,000",
     value: {
-      $gt: 7500,
-      $lt: 15000,
+      $gt: 3000,
+      $lt: 5001,
     },
   },
   {
     id: "5",
-    label: "Rs. 5,000 - Rs. 7,500",
+    label: "Rs. 2,000 - Rs. 3,000",
     value: {
-      $gt: 5000,
-      $lt: 7500,
+      $gt: 2000,
+      $lt: 3001,
     },
   },
   {
     id: "6",
-    label: "Rs. 2,500 - Rs. 5,000",
+    label: "Rs. 1,000 - Rs. 2,000",
     value: {
-      $gt: 2500,
-      $lt: 5000,
+      $gt: 1000,
+      $lt: 2001,
     },
   },
   {
     id: "7",
-    label: "Rs. 1,000 - Rs. 2,500",
+    label: "Rs. 500 - Rs. 1,000",
     value: {
-      $gt: 1000,
-      $lt: 2500,
+      $gt: 500,
+      $lt: 1001,
     },
   },
   {
     id: "8",
-    label: "Rs. 100 - Rs. 1000",
+    label: "Rs. 1 - Rs. 500",
     value: {
-      $gt: 100,
-      $lt: 1000,
+      $gt: 0,
+      $lt: 501,
     },
   },
 ];
