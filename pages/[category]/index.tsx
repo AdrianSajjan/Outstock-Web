@@ -41,7 +41,6 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
         <title>{_.upperFirst(category)}&apos;s Shopping</title>
       </Head>
       <PageHeader title={category} pathname={router.pathname} query={router.query} />
-
       <Box as="section" bg="white">
         <Container px={containerPadding} maxW="container.2xl" py="8">
           <ProductFilterAndSort {...{ sort, ...rest }} />

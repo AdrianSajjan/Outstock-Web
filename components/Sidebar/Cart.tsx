@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Box,
   Button,
   Divider,
   Drawer,
@@ -10,16 +9,15 @@ import {
   DrawerFooter,
   DrawerOverlay,
   HStack,
-  IconButton,
   Text,
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { addToCart, client, fetchCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import NextLink from "next/link";
 import { useSessionStore } from "@shared/store";
-import { HiMinus, HiOutlineTrash, HiPlus } from "react-icons/hi";
-import Image from "next/image";
+import { CartProductCard } from "@components/Cards";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { addToCart, client, fetchCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
 import { FetchCartSuccess, Product, RemoveItemFromCartState, UpdateCartState } from "@shared/interface";
 
 interface Props {
@@ -37,7 +35,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
   const removeProductFromCartMutation = useMutation<FetchCartSuccess, string, UpdateCartState>({ mutationFn: removeProductFromCart });
   const removeItemFromCartMutation = useMutation<FetchCartSuccess, string, RemoveItemFromCartState>({ mutationFn: removeItemFromCart });
 
-  const handleAddToCart = (product: Product) => {
+  const handleAdd = (product: Product) => {
     if (cart.data)
       return addToCartMutation.mutate(
         { id: cart.data._id, product },
@@ -53,7 +51,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
       );
   };
 
-  const handleRemoveProductFromCart = (product: Product) => {
+  const handleRemoveProduct = (product: Product) => {
     if (cart.data)
       return removeProductFromCartMutation.mutate(
         { id: cart.data._id, product },
@@ -69,7 +67,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
       );
   };
 
-  const handleRemoveItemFromCart = (item: string) => {
+  const handleRemoveItem = (item: string) => {
     if (cart.data)
       return removeItemFromCartMutation.mutate(
         { id: cart.data._id, item },
@@ -97,61 +95,11 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
         </HStack>
         <DrawerBody pt="6">
           <VStack alignItems="stretch" spacing={4}>
-            {cart.data?.items.map(({ product, quantity, _id }) => (
-              <>
-                <HStack alignItems="start" spacing={5} key={_id}>
-                  <Box h="32" w="28" pos="relative">
-                    <Image src={product.images[0]} layout="fill" objectFit="cover" />
-                  </Box>
-                  <VStack alignItems="start" justifyContent="space-between" h="32" flex={1}>
-                    <Box>
-                      <Text fontSize="lg" color="gray.600">
-                        {product.name}
-                      </Text>
-                      <Text textTransform="capitalize" fontWeight="semibold">
-                        {product.category.name}
-                      </Text>
-                    </Box>
-                    <HStack justify="space-between" w="full">
-                      <HStack spacing={4}>
-                        <HStack spacing={0}>
-                          <IconButton
-                            onClick={() => handleRemoveProductFromCart(product)}
-                            aria-label="subtract"
-                            color="gray.500"
-                            size="sm"
-                            icon={<HiMinus size={16} />}
-                          />
-                          <Box h="8" minW="8" bg="gray.100" display="flex" alignItems="center" justifyContent="center">
-                            <Text textTransform="capitalize" align="center">
-                              {quantity}
-                            </Text>
-                          </Box>
-                          <IconButton
-                            onClick={() => handleAddToCart(product)}
-                            aria-label="add"
-                            color="gray.500"
-                            size="sm"
-                            icon={<HiPlus size={16} />}
-                          />
-                        </HStack>
-                        <Text fontWeight="semibold">
-                          {product.currency} {product.price.toFixed(2)}
-                        </Text>
-                      </HStack>
-                      <IconButton
-                        onClick={() => handleRemoveItemFromCart(_id)}
-                        aria-label="delete"
-                        colorScheme="red"
-                        variant="ghost"
-                        size="sm"
-                        icon={<HiOutlineTrash size={20} />}
-                      />
-                    </HStack>
-                  </VStack>
-                </HStack>
+            {cart.data?.items.map(({ _id, ...props }) => (
+              <React.Fragment key={_id}>
+                <CartProductCard {...{ _id, ...props, handleAdd, handleEmpty: handleRemoveItem, handleRemove: handleRemoveProduct }} />
                 <Divider />
-              </>
+              </React.Fragment>
             ))}
           </VStack>
         </DrawerBody>
@@ -162,9 +110,11 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
               ₹ {cart.data?.totalPrice || 0}
             </Text>
           </HStack>
-          <Button isFullWidth mt="4" colorScheme="blackAlpha" bg="black">
-            Check Out
-          </Button>
+          <NextLink href="/checkout" passHref>
+            <Button as="a" isFullWidth mt="4" colorScheme="blackAlpha" bg="black">
+              Check Out
+            </Button>
+          </NextLink>
           <Button isFullWidth mt="2">
             View Cart
           </Button>
