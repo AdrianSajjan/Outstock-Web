@@ -4,7 +4,7 @@ import { ProductFilterAndSort } from "@components/Filter";
 import _ from "lodash";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useFilter, useResponseGrid } from "@shared/hooks";
+import { useFilter, use4ColumnResponseGrid } from "@shared/hooks";
 import { fetchProducts } from "@shared/api";
 import { PageHeader } from "@components/Layout";
 import { GetServerSideProps, NextPage } from "next";
@@ -16,7 +16,7 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
   const router = useRouter();
   const category = router.query.category as string;
 
-  const columns = useResponseGrid();
+  const columns = use4ColumnResponseGrid();
 
   const { sort, filter, ...rest } = useFilter();
 
@@ -47,7 +47,7 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
         <Container px={containerPadding} maxW="container.2xl" py="8">
           <ProductFilterAndSort {...{ sort, ...rest }} />
           <Box pt="16">
-            {query.isFetching ? (
+            {query.isFetching && !query.isFetchingNextPage ? (
               <Flex h="24" align="center" justify="center">
                 <Spinner size="lg" />
               </Flex>
@@ -64,7 +64,7 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
             )}
           </Box>
           <Box pt="16" pb="16">
-            <Button isDisabled={!query.hasNextPage} onClick={handleNextPage} isFullWidth>
+            <Button isDisabled={!query.hasNextPage} isLoading={query.isFetchingNextPage} onClick={handleNextPage} isFullWidth>
               Load More
             </Button>
           </Box>

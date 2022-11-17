@@ -7,6 +7,7 @@ import { HiChevronRight } from "react-icons/hi";
 import { ParsedUrlQuery } from "querystring";
 import { BreadCrumbProp } from "@shared/interface";
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Container, Heading } from "@chakra-ui/react";
+import { useLessThan576px } from "@shared/hooks";
 
 interface PageHeaderProps {
   title: string;
@@ -15,6 +16,8 @@ interface PageHeaderProps {
 }
 
 const PageHeader: NextPage<PageHeaderProps> = ({ title, query, pathname }) => {
+  const isLessThan576px = useLessThan576px();
+
   const breadcrumbs = useMemo(() => {
     const base = pathname.split("/").map((p) => {
       return /^\[.+\]$/.test(p) ? (Object.keys(query).includes(p.slice(1, -1)) ? query[p.slice(1, -1)] : p) : p;
@@ -41,7 +44,7 @@ const PageHeader: NextPage<PageHeaderProps> = ({ title, query, pathname }) => {
             </BreadcrumbItem>
           ))}
         </Breadcrumb>
-        <Heading size="lg" textTransform="uppercase" mt="8" textAlign="center">
+        <Heading size={isLessThan576px ? "md" : "lg"} textTransform="uppercase" mt="12" textAlign="center">
           {title}
         </Heading>
       </Container>

@@ -7,16 +7,28 @@ import { useRouter } from "next/router";
 import { PageHeader } from "@components/Layout";
 import { StarRating } from "@components/Rating";
 import { FaTape } from "react-icons/fa";
-import { Box, Button, ButtonGroup, chakra, Container, Divider, Flex, HStack, IconButton, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, chakra, Container, Divider, Flex, HStack, IconButton, SimpleGrid, Stack, Text, VStack } from "@chakra-ui/react";
 import { HiChevronDown, HiChevronUp, HiOutlineChatAlt, HiOutlineHeart, HiOutlineMail, HiOutlineRefresh, HiOutlineTruck } from "react-icons/hi";
-import { acceptedCategoryRoutes } from "@shared/constants";
+import { acceptedCategoryRoutes, containerPadding } from "@shared/constants";
 import { fetchProductBySlug } from "@shared/api";
 import { DetailsPageProps, DetailsPageServerSideProps } from "@shared/interface";
+import { useLessThan576px, useLessThan976px } from "@shared/hooks";
 
 const Span = chakra("span");
 
+const Thumbnail = chakra("button", {
+  baseStyle: {
+    w: ["20", "24"],
+    h: ["20", "20", "32"],
+    pos: "relative",
+  },
+});
+
 const Details: NextPage<DetailsPageProps> = ({ data }) => {
   const router = useRouter();
+
+  const isLessThan576px = useLessThan576px();
+  const isLessThan976px = useLessThan976px();
 
   const category = router.query.category as string;
 
@@ -39,7 +51,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                 <StarRating total={5} rating={data.averageRating || 0} size={16} />
                 <Text>2 Reviews</Text>
               </HStack>
-              <HStack spacing="4">
+              <HStack spacing="4" display={isLessThan576px ? "none" : "flex"}>
                 <Text>
                   Sold: <Span fontWeight="bold">777</Span>
                 </Text>
@@ -50,32 +62,30 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
             </HStack>
           </Container>
         </Box>
-        <Container maxW="container.2xl" py="12">
-          <SimpleGrid columns={2} spacing={12}>
-            <HStack spacing={4} alignItems="start">
-              <VStack spacing={4}>
-                <HStack spacing={4}>
-                  <IconButton aria-label="before" icon={<HiChevronUp />} onClick={handleDecreaseIndex} />
-                  <IconButton aria-label="after" icon={<HiChevronDown />} onClick={handleIncreaseIndex} />
-                </HStack>
-                {data.images.map((image, index) => (
-                  <Box
-                    as="button"
-                    onClick={() => setActiveIndex(index)}
-                    key={image + index}
-                    h="32"
-                    w="24"
-                    border={index === activeIndex ? "2px" : ""}
-                    position="relative"
-                  >
-                    <Image layout="fill" objectFit="cover" src={data.images[index]} />
-                  </Box>
-                ))}
-              </VStack>
-              <Box w="full" h="full" maxH="2xl" position="relative">
-                <Image layout="fill" objectFit="cover" src={data.images[activeIndex]} />
+        <Container maxW="container.2xl" padding={containerPadding} py="12">
+          <SimpleGrid columns={isLessThan976px ? 1 : 2} spacing={12}>
+            <Stack direction={isLessThan576px ? "column-reverse" : "row"} spacing={4} alignItems="start">
+              <Flex direction={isLessThan576px ? "row" : "column"} w={isLessThan576px ? "full" : "unset"} gap={4}>
+                {!isLessThan576px ? (
+                  <HStack spacing={4}>
+                    <IconButton aria-label="before" icon={<HiChevronUp />} onClick={handleDecreaseIndex} />
+                    <IconButton aria-label="after" icon={<HiChevronDown />} onClick={handleIncreaseIndex} />
+                  </HStack>
+                ) : null}
+                {data.images.map((image, index) => {
+                  const handleClick = () => setActiveIndex(index);
+                  const border = index === activeIndex ? "2px" : "";
+                  return (
+                    <Thumbnail onClick={handleClick} key={image + index} border={border}>
+                      <Image layout="fill" objectFit="cover" src={data.images[index]} />
+                    </Thumbnail>
+                  );
+                })}
+              </Flex>
+              <Box w="full" maxW="lg" h="full" minH="md" maxH="2xl" position="relative">
+                <Image layout="fill" objectFit="cover" src={data.images[activeIndex]} quality={100} />
               </Box>
-            </HStack>
+            </Stack>
             <Box>
               <Text textTransform="uppercase">
                 Color:&nbsp;
@@ -101,18 +111,20 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                 </Button>
               </VStack>
               <Divider mt="8" />
-              <Flex alignItems="center" py="8">
+              <Flex alignItems="center" flexWrap="wrap" py="8" gap={isLessThan576px ? 4 : 8}>
                 <Text fontWeight="bold" fontSize="2xl">
-                  {data.currency}. {data.price}
+                  {data.currency}. {data.price.toFixed(2)}
                 </Text>
-                <Button ml="8" mr="4" bg="black" color="white" px="10" colorScheme="blackAlpha">
-                  Add to cart
-                </Button>
-                <IconButton aria-label="Add To Wishlist" icon={<HiOutlineHeart size={20} />} />
+                <Flex gap={4}>
+                  <Button bg="black" color="white" px="10" colorScheme="blackAlpha">
+                    Add to cart
+                  </Button>
+                  <IconButton aria-label="Add To Wishlist" icon={<HiOutlineHeart size={20} />} />
+                </Flex>
               </Flex>
               <Divider />
               <Box>
-                <HStack justifyContent="space-between" mt="8">
+                <Flex wrap="wrap" justifyContent="space-between" gap="4" mt="8">
                   <HStack>
                     <HiOutlineTruck size={24} color="gray" />
                     <Text color="gray.500" fontWeight="medium">
@@ -131,7 +143,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                       Ask a question
                     </Text>
                   </HStack>
-                </HStack>
+                </Flex>
                 <HStack mt="6" spacing="4">
                   <Text fontWeight="bold" textTransform="uppercase" flexShrink={0}>
                     Guaranteed Safe Checkout
@@ -171,12 +183,13 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                 <Text textTransform="uppercase" fontWeight="bold">
                   Reviews
                 </Text>
-                <HStack mt="4" justifyContent="space-between">
+                <Flex wrap="wrap" gap="4" mt="4" justifyContent="space-between">
                   <HStack spacing={6}>
                     <StarRating rating={4} total={5} size={16} />
                     <Text>2 Reviews</Text>
                   </HStack>
                   <Button
+                    p={0}
                     variant="ghost"
                     textColor="gray.500"
                     textTransform="none"
@@ -186,7 +199,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                   >
                     Write a review
                   </Button>
-                </HStack>
+                </Flex>
                 <VStack mt="12" alignItems="stretch" spacing={12}>
                   <Box>
                     <HStack justifyContent="space-between">

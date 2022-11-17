@@ -4,7 +4,7 @@ import { OAuth2Success } from "@shared/interface";
 import { useSessionStore } from "@shared/store";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/",
+  baseURL: "http://192.168.0.107:5000/",
 });
 
 api.interceptors.request.use(

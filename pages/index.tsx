@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Head from "next/head";
+import * as React from "react";
 import Image from "next/image";
 import NextLink from "next/link";
 import { HeroSmallCard } from "@shared/pages";
@@ -10,8 +11,16 @@ import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/
 import { Box, Button, Container, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import { AxiosErrorResponse, HomePageProps, HomePageServerSideProps } from "@shared/interface";
 import { containerPadding } from "@shared/constants";
+import { useLessThan1366px, use4ColumnResponseGrid, useHeroResponseGrid, use2ColumnResponseGrid, use3ColumnResponseGrid } from "@shared/hooks";
 
 const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, women }) => {
+  const heroColumns = useHeroResponseGrid();
+  const twoColumns = use2ColumnResponseGrid();
+  const threeColumns = use3ColumnResponseGrid();
+  const foursColumns = use4ColumnResponseGrid();
+
+  const isLessThan1366px = useLessThan1366px();
+
   return (
     <>
       <Head>
@@ -20,12 +29,22 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
       <Box as="section" borderBottomWidth={1} borderBottomColor="gray.200">
         <Container px={containerPadding} paddingTop="12" paddingBottom="12" maxW="container.2xl">
-          <Grid h="2xl" gridGap={6} templateColumns="repeat(4, 1fr)" templateRows="repeat(2, 1fr)">
+          <Grid minH="2xl" gridGap={6} templateColumns={heroColumns} templateRows="repeat(2, 1fr)">
             <GridItem colSpan={2} rowSpan={2} position="relative">
-              <Box boxSize="full" position="relative">
+              <Box minH="lg" h="full" w="full" position="relative">
                 <Image layout="fill" src={hero.main.image} priority objectFit="cover" />
               </Box>
-              <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="4" px="12" borderRadius="sm">
+              <Box
+                position="absolute"
+                top="50%"
+                left="50%"
+                w="72"
+                transform="translate(-50%, -50%)"
+                bg="white"
+                py="4"
+                px={{ base: "4", md: "12" }}
+                borderRadius="sm"
+              >
                 <Text textTransform="uppercase" fontWeight="semibold" fontSize="md" align="center" color="gray.600">
                   {hero.main.caption}
                 </Text>
@@ -39,7 +58,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
             <HeroSmallCard image={hero.bottom.image} colSpan={2} title={hero.bottom.title} url={hero.bottom.url!} />
           </Grid>
 
-          <Box display="flex" marginTop={12} alignItems="center" justifyContent="space-between" gap={12}>
+          <Box display="flex" marginTop={12} alignItems="center" flexWrap="wrap" justifyContent="space-between" gap={12}>
             <Box display="flex" alignItems="center" columnGap={4}>
               <HiOutlineTruck size={48} />
               <Box>
@@ -73,12 +92,12 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
       <Box as="section">
         <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="2">
-          <Heading textTransform="uppercase" size="lg" mb="12">
+          <Heading textAlign={isLessThan1366px ? "center" : "left"} textTransform="uppercase" size="lg" mb="12">
             Women&apos;s
           </Heading>
-          <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
+          <Grid placeItems="center" templateColumns={foursColumns} gridGap={8}>
             {women.products.map((product) => (
-              <GridItem key={product._id}>
+              <GridItem w="full" maxW="96" key={product._id}>
                 <ProductCard {...product} />
               </GridItem>
             ))}
@@ -93,12 +112,12 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
       <Box as="section">
         <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="2">
-          <Heading textTransform="uppercase" size="lg" mb="12">
+          <Heading textAlign={isLessThan1366px ? "center" : "left"} textTransform="uppercase" size="lg" mb="12">
             Men&apos;s
           </Heading>
-          <Grid templateColumns="repeat(4, 1fr)" gridGap={8}>
+          <Grid placeItems="center" templateColumns={foursColumns} gridGap={8}>
             {men.products.map((product) => (
-              <GridItem key={product._id}>
+              <GridItem w="full" maxW="96" key={product._id}>
                 <ProductCard {...product} />
               </GridItem>
             ))}
@@ -113,7 +132,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
       <Box as="section">
         <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="2">
-          <Grid templateColumns="repeat(2, 1fr)" gap={16}>
+          <Grid templateColumns={twoColumns} gap={16}>
             {banner.map(({ caption, image, title, _id }) => (
               <GridItem key={_id}>
                 <Box h="80" display="flex" alignItems="center" justifyContent="center" position="relative">
@@ -140,7 +159,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
               Latest From Blog
             </Heading>
           </Box>
-          <Grid templateColumns="repeat(3, 1fr)" gridGap={16} mt="16">
+          <Grid templateColumns={threeColumns} gridGap={16} mt="16">
             {blog.map(({ body, image, title, _id }) => (
               <GridItem key={_id}>
                 <Box w="full" h="80" position="relative">

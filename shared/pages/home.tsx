@@ -14,10 +14,19 @@ export const HeroSmallCard: NextPage<HeroSmallCardProp> = ({ image, title, url, 
   return (
     <Link href={url} passHref>
       <GridItem colSpan={colSpan} rowSpan={1} position="relative" as="a">
-        <Box boxSize="full" position="relative">
+        <Box minH="80" h="full" w="full" position="relative">
           <Image layout="fill" src={image} objectFit="cover" />
         </Box>
-        <Box position="absolute" top="50%" left="50%" transform="translate(-50%, -50%)" bg="white" py="3" px="9" borderRadius="sm">
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          bg="white"
+          py={{ base: "2", md: "3" }}
+          px={{ base: "4", md: "9" }}
+          borderRadius="sm"
+        >
           <Heading textTransform="uppercase" size="md" textAlign="center">
             {title}
           </Heading>

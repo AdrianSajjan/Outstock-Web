@@ -4,27 +4,46 @@ import type { NextPage } from "next";
 import { useAppStore } from "@shared/store";
 import { useSessionStore } from "@shared/store";
 import { containerPadding } from "@shared/constants";
-import { CartSidebar, ProfileSidebar, SearchSidebar } from "@components/Sidebar";
+import { CartSidebar, MobileSidebar, ProfileSidebar, SearchSidebar } from "@components/Sidebar";
 import { RiFacebookCircleFill, RiInstagramFill, RiTwitterFill } from "react-icons/ri";
 import { Box, Button, Container, Grid, Heading, IconButton, Input, Link, Text, useToast } from "@chakra-ui/react";
-import { HiClock, HiLocationMarker, HiMail, HiPhone, HiSearch, HiShoppingBag, HiUser } from "react-icons/hi";
-import { useLessThan768px, useLessThan976px, useResponseGrid } from "@shared/hooks";
+import { HiClock, HiLocationMarker, HiMail, HiMenuAlt3, HiPhone, HiSearch, HiShoppingBag, HiUser } from "react-icons/hi";
+import { useLessThan768px, useLessThan976px, use4ColumnResponseGrid, useLessThan1366px, useLessThan576px } from "@shared/hooks";
+import { BottomNavigation } from "@components/Layout";
 
 interface MainLayoutProps {
   isLoadingComplete: boolean;
 }
 
 const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) => {
-  const { isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, setCartSidebarOpen, setProfileSidebarOpen, setSearchSidebarOpen } =
-    useAppStore();
+  const {
+    isProfileSidebarOpen,
+    isCartSidebarOpen,
+    isMobileSidebarOpen,
+    isSearchSidebarOpen,
+    setCartSidebarOpen,
+    setProfileSidebarOpen,
+    setSearchSidebarOpen,
+    setMobileSidebarOpen,
+  } = useAppStore();
 
   const { isAuthenticated } = useSessionStore();
 
-  const columns = useResponseGrid();
+  const columns = use4ColumnResponseGrid();
+  const isLessThan576px = useLessThan576px();
   const isLessThan768px = useLessThan768px();
   const isLessThan976px = useLessThan976px();
+  const isLessThan1366px = useLessThan1366px();
+
+  const iconSize = React.useMemo(() => (isLessThan576px ? 20 : 24), [isLessThan576px]);
 
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
+
+  const handleProfileSidebarOpen = () => setProfileSidebarOpen(true);
+
+  const handleSearchSidebarOpen = () => setSearchSidebarOpen(true);
+
+  const handleMobileSidebarOpen = () => setMobileSidebarOpen(true);
 
   const handleCartSidebarOpen = () => {
     if (isAuthenticated) return setCartSidebarOpen(true);
@@ -33,12 +52,12 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
   };
 
   React.useEffect(() => {
-    if (isProfileSidebarOpen || isCartSidebarOpen || isSearchSidebarOpen) {
+    if (isProfileSidebarOpen || isCartSidebarOpen || isSearchSidebarOpen || isMobileSidebarOpen) {
       document.body.style.overflowY = "hidden";
     } else {
       document.body.style.overflowY = "auto";
     }
-  }, [isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen]);
+  }, [isProfileSidebarOpen, isCartSidebarOpen, isSearchSidebarOpen, isMobileSidebarOpen]);
 
   return (
     <>
@@ -73,30 +92,35 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
           </Container>
         </Box>
         <Box as="nav" bg="white">
-          <Container px={containerPadding} maxW="container.2xl" h={90} display="flex" alignItems="center" justifyContent="space-between">
-            <NextLink href="/" passHref>
-              <Heading size="lg" textTransform="uppercase" fontFamily="brand" fontWeight="bold" cursor="pointer">
-                Outstock
-              </Heading>
-            </NextLink>
-            <Box display={isLessThan768px ? "none" : "flex"} alignItems="center" columnGap={10} fontWeight="medium">
-              <NextLink href="/women" passHref>
-                <Link fontWeight="medium">Women</Link>
+          <Container px={containerPadding} maxW="container.2xl">
+            <Box h={{ base: "16", md: "24" }} display="flex" alignItems="center" justifyContent="space-between">
+              <NextLink href="/" passHref>
+                <Heading size={isLessThan576px ? "md" : "lg"} textTransform="uppercase" fontFamily="brand" fontWeight="bold" cursor="pointer">
+                  Outstock
+                </Heading>
               </NextLink>
-              <NextLink href="/men" passHref>
-                <Link>Men</Link>
-              </NextLink>
-              <NextLink href="/contact" passHref>
-                <Link>Contact</Link>
-              </NextLink>
-              <NextLink href="/about" passHref>
-                <Link>About</Link>
-              </NextLink>
-            </Box>
-            <Box display="flex" columnGap={4}>
-              <IconButton aria-label="user" onClick={() => setProfileSidebarOpen(true)} icon={<HiUser size={24} />} variant="ghost" />
-              <IconButton aria-label="search" onClick={() => setSearchSidebarOpen(true)} icon={<HiSearch size={24} />} variant="ghost" />
-              <IconButton aria-label="cart" onClick={handleCartSidebarOpen} icon={<HiShoppingBag size={24} />} variant="ghost" />
+              <Box display={isLessThan768px ? "none" : "flex"} alignItems="center" columnGap={8} fontWeight="medium">
+                <NextLink href="/women" passHref>
+                  <Link fontWeight="medium">Women</Link>
+                </NextLink>
+                <NextLink href="/men" passHref>
+                  <Link>Men</Link>
+                </NextLink>
+                <NextLink href="/contact" passHref>
+                  <Link>Contact Us</Link>
+                </NextLink>
+                <NextLink href="/about" passHref>
+                  <Link>About Us</Link>
+                </NextLink>
+              </Box>
+              <Box display="flex" columnGap={isLessThan576px ? 2 : 4}>
+                <IconButton aria-label="user" onClick={handleProfileSidebarOpen} icon={<HiUser size={iconSize} />} variant="ghost" />
+                <IconButton aria-label="search" onClick={handleSearchSidebarOpen} icon={<HiSearch size={iconSize} />} variant="ghost" />
+                <IconButton aria-label="cart" onClick={handleCartSidebarOpen} icon={<HiShoppingBag size={iconSize} />} variant="ghost" />
+                {isLessThan768px ? (
+                  <IconButton aria-label="menu" onClick={handleMobileSidebarOpen} icon={<HiMenuAlt3 size={iconSize} />} variant="ghost" />
+                ) : null}
+              </Box>
             </Box>
           </Container>
         </Box>
@@ -104,7 +128,8 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
       <CartSidebar isOpen={isCartSidebarOpen} handleClose={() => setCartSidebarOpen(false)} />
       <ProfileSidebar isOpen={isProfileSidebarOpen} isLoadingComplete={isLoadingComplete} handleClose={() => setProfileSidebarOpen(false)} />
       <SearchSidebar isOpen={isSearchSidebarOpen} handleClose={() => setSearchSidebarOpen(false)} />
-      <Box as="main" marginTop={isLessThan768px ? 90 : 120} bg="white">
+      <MobileSidebar isOpen={isMobileSidebarOpen} handleClose={() => setMobileSidebarOpen(false)} />
+      <Box as="main" mt={{ base: "16", md: "32" }} bg="white">
         {children}
       </Box>
       <Box as="footer">
@@ -130,10 +155,10 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
             </Box>
           </Container>
         </Box>
-        <Box bg="white" py="12">
+        <Box bg="white" py="12" display={isLessThan576px ? "none" : "block"}>
           <Container px={containerPadding} maxW="container.2xl">
             <Grid templateColumns={columns} gap={16}>
-              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Categories
                 </Heading>
@@ -158,7 +183,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Information
                 </Heading>
@@ -183,7 +208,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Useful Links
                 </Heading>
@@ -208,7 +233,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Contact Us
                 </Heading>
@@ -237,7 +262,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
         <Box bg="gray.100" py="4">
           <Container px={containerPadding} maxW="container.2xl">
             <Box display="flex" alignItems="center" flexWrap="wrap" gap="2" justifyContent={isLessThan768px ? "center" : "space-between"}>
-              <Text fontSize="sm" textAlign="center" fontWeight="semibold" color="gray.600">
+              <Text display={isLessThan576px ? "none" : "inline-block"} fontSize="sm" textAlign="center" fontWeight="semibold" color="gray.600">
                 Copyright &copy; 2022 All Rights Reserved
               </Text>
               <Text fontSize="sm" textAlign="center" fontWeight="semibold" color="gray.600">

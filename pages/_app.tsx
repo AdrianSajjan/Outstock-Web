@@ -1,3 +1,4 @@
+import * as React from "react";
 import MainLayout from "@layout/Main";
 import { client } from "@shared/api";
 import type { AppProps } from "next/app";

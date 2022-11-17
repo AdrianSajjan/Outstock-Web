@@ -1,5 +1,3 @@
-import { NextPage } from "next";
-import { HiChevronDown, HiOutlineFilter, HiOutlineViewGrid, HiOutlineViewList, HiOutlineX } from "react-icons/hi";
 import {
   Box,
   Button,
@@ -18,6 +16,8 @@ import {
 } from "@chakra-ui/react";
 import { Prices, Sort } from "@shared/constants";
 import { UseFilter } from "@shared/hooks";
+import { NextPage } from "next";
+import { HiChevronDown, HiOutlineFilter, HiOutlineViewGrid, HiOutlineViewList, HiOutlineX } from "react-icons/hi";
 
 interface ProductFilterAndSortProps extends Omit<UseFilter, "filter"> {}
 
@@ -36,16 +36,18 @@ const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
 
   return (
     <>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
+      <Box display="flex" alignItems="center" justifyContent="space-between" mx="-2.5">
         <Box w="48">
           <Button variant="ghost" leftIcon={filterIcon} color="gray.600" fontWeight="medium" onClick={handleFilterToggle}>
             Filter
           </Button>
         </Box>
-        <ButtonGroup variant="ghost" spacing={2}>
-          <IconButton aria-label="list" color={view === 0 ? "black" : "gray.400"} onClick={handleListView} icon={<HiOutlineViewList size={24} />} />
-          <IconButton aria-label="grid" color={view === 1 ? "black" : "gray.400"} onClick={handleGridView} icon={<HiOutlineViewGrid size={24} />} />
-        </ButtonGroup>
+        <Box display="none">
+          <ButtonGroup variant="ghost" spacing={2}>
+            <IconButton aria-label="list" color={view === 0 ? "black" : "gray.400"} onClick={handleListView} icon={<HiOutlineViewList size={24} />} />
+            <IconButton aria-label="grid" color={view === 1 ? "black" : "gray.400"} onClick={handleGridView} icon={<HiOutlineViewGrid size={24} />} />
+          </ButtonGroup>
+        </Box>
         <Box w="48" display="flex" justifyContent="flex-end">
           <Menu>
             <MenuButton as={Button} variant="ghost" color="gray.600" rightIcon={<HiChevronDown />}>
@@ -57,7 +59,7 @@ const ProductFilterAndSort: NextPage<ProductFilterAndSortProps> = ({
                   if (sort.value !== value) setSort({ label, value });
                 };
                 return (
-                  <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={value} onClick={handleSortToggle}>
+                  <MenuItem textTransform="uppercase" fontWeight="medium" py="3" key={label} onClick={handleSortToggle}>
                     {label}
                   </MenuItem>
                 );
