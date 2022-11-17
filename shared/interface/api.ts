@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { Product, User } from "./entity";
+import { Cart, Product, User } from "./entity";
 import { HomePageBanner, HomePageBlog, HomePageHero } from "./pages";
 import { FilterState } from "./state";
 
@@ -51,6 +51,8 @@ export interface FetchProductsSuccess {
 }
 
 export type FetchProductSuccess = Product;
+
+export type FetchCartSuccess = Cart;
 
 export interface ErrorResponse {
   status: number;

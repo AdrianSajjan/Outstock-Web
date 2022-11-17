@@ -1,15 +1,14 @@
 import { api } from "@shared/api";
 import { AxiosError } from "axios";
-import { LoginFormState, LoginSuccess, LogoutState, LogoutSuccess, RegistrationFormState, RegistrationSuccess } from "@shared/interface";
 import { getRefreshToken } from "@shared/utils";
+import { ErrorResponse, LoginFormState, LoginSuccess, LogoutSuccess, RegistrationFormState, RegistrationSuccess } from "@shared/interface";
 
 export const login = async (values: LoginFormState): Promise<LoginSuccess> => {
   try {
     const res = await api.post("/user/auth/login", values);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<any>;
-    console.log(error.response?.data);
+    const error = e as AxiosError<ErrorResponse>;
     throw error.response ? error.response.data.message : error.message;
   }
 };
@@ -19,8 +18,7 @@ export const register = async (values: Omit<RegistrationFormState, "confirmPassw
     const res = await api.post("/user/auth/register", values);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<any>;
-    console.log(error.response?.data);
+    const error = e as AxiosError<ErrorResponse>;
     throw error.response ? error.response.data.message : error.message;
   }
 };
@@ -31,8 +29,7 @@ export const logout = async (): Promise<LogoutSuccess> => {
     const res = await api.post("/user/auth/logout", { refreshToken });
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<any>;
-    console.log(error.response?.data);
+    const error = e as AxiosError<ErrorResponse>;
     throw error.response ? error.response.data.message : error.message;
   }
 };

@@ -30,3 +30,20 @@ export interface Category {
   code: number;
   parent?: Category;
 }
+
+export interface Cart {
+  _id: string;
+  user: User;
+  status: string;
+  isActive: boolean;
+  totalPrice: number;
+  totalQuantity: number;
+  items: Array<CartItem>;
+}
+
+export interface CartItem {
+  _id?: any;
+  size?: string;
+  quantity: number;
+  product: Product;
+}

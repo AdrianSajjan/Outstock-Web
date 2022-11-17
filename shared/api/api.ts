@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessToken, getRefreshToken, setSession } from "@shared/utils";
+import { destroySession, getAccessToken, getRefreshToken, setSession } from "@shared/utils";
 import { OAuth2Success } from "@shared/interface";
 import { useSessionStore } from "@shared/store";
 
@@ -29,7 +29,8 @@ api.interceptors.response.use(
     if (error.response.status !== 401 || original._retry) return Promise.reject(error);
 
     if (original.url === "/user/auth/oauth2") {
-      console.log("LOGOUT");
+      destroySession();
+      useSessionStore.getState().reauthenticateSession();
       return Promise.reject(error);
     }
 
@@ -38,7 +39,14 @@ api.interceptors.response.use(
     const res = await api.post<OAuth2Success>("/user/auth/oauth2", { refreshToken });
     setSession(res.data.accessToken, res.data.refreshToken);
     useSessionStore.getState().updateSessionTokens(res.data);
-    return api({ method: original.method, url: original.url, data: original.data });
+    console.log(original.headers);
+    return api({
+      ...original,
+      headers: {
+        ...original.headers,
+        "Content-Type": "application/json",
+      },
+    });
   }
 );
 

@@ -27,7 +27,6 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
       if (pages.length * perRequestProductLimit >= lastPage.total) return false;
       return lastPage.nextPage;
     },
-    refetchOnWindowFocus: false,
     initialData: {
       pages: [data],
       pageParams: [undefined],

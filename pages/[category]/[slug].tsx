@@ -2,16 +2,34 @@ import _ from "lodash";
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
-import { GetServerSideProps, NextPage } from "next";
+import { AxiosError } from "axios";
 import { useRouter } from "next/router";
+import { FaTape } from "react-icons/fa";
+import { useAppStore, useSessionStore } from "@shared/store";
 import { PageHeader } from "@components/Layout";
 import { StarRating } from "@components/Rating";
-import { FaTape } from "react-icons/fa";
-import { Box, Button, ButtonGroup, chakra, Container, Divider, Flex, HStack, IconButton, SimpleGrid, Stack, Text, VStack } from "@chakra-ui/react";
-import { HiChevronDown, HiChevronUp, HiOutlineChatAlt, HiOutlineHeart, HiOutlineMail, HiOutlineRefresh, HiOutlineTruck } from "react-icons/hi";
+import { useMutation } from "@tanstack/react-query";
+import { GetServerSideProps, NextPage } from "next";
+import { client, fetchProductBySlug, addToCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
 import { acceptedCategoryRoutes, containerPadding } from "@shared/constants";
-import { fetchProductBySlug } from "@shared/api";
-import { DetailsPageProps, DetailsPageServerSideProps } from "@shared/interface";
+import { Cart, DetailsPageProps, DetailsPageServerSideProps, FetchCartSuccess, UpdateCartState } from "@shared/interface";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  chakra,
+  Container,
+  Divider,
+  Flex,
+  HStack,
+  IconButton,
+  SimpleGrid,
+  Stack,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
+import { HiChevronDown, HiChevronUp, HiOutlineChatAlt, HiOutlineHeart, HiOutlineMail, HiOutlineRefresh, HiOutlineTruck } from "react-icons/hi";
 import { useLessThan576px, useLessThan976px } from "@shared/hooks";
 
 const Span = chakra("span");
@@ -26,9 +44,13 @@ const Thumbnail = chakra("button", {
 
 const Details: NextPage<DetailsPageProps> = ({ data }) => {
   const router = useRouter();
+  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
   const isLessThan576px = useLessThan576px();
   const isLessThan976px = useLessThan976px();
+
+  const { isAuthenticated } = useSessionStore();
+  const { setProfileSidebarOpen } = useAppStore();
 
   const category = router.query.category as string;
 
@@ -36,6 +58,29 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
 
   const handleIncreaseIndex = () => setActiveIndex((idx) => (idx === data.images.length - 1 ? 0 : idx + 1));
   const handleDecreaseIndex = () => setActiveIndex((idx) => (idx === 0 ? data.images.length - 1 : idx - 1));
+
+  const cart = client.getQueryData<Cart>(["cart"]);
+
+  const addToCartMutation = useMutation<FetchCartSuccess, string, UpdateCartState>({ mutationFn: addToCart });
+
+  const handleAddToCart = () => {
+    if (!cart) return toast({ title: "Coudn't fetch cart", description: "Please refresh the page and try again", status: "warning" });
+    if (isAuthenticated)
+      return addToCartMutation.mutate(
+        { id: cart._id, product: data },
+        {
+          onSuccess: () => {
+            toast({ title: "Success", description: "Product added to cart", status: "success" });
+            client.invalidateQueries({ queryKey: ["cart"] });
+          },
+          onError: (error) => {
+            toast({ title: "Unable to add to Cart", description: error, status: "error" });
+          },
+        }
+      );
+    setProfileSidebarOpen(true);
+    toast({ title: "Login or Register", status: "info", description: "Please login or register to view your cart" });
+  };
 
   return (
     <>
@@ -116,7 +161,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                   {data.currency}. {data.price.toFixed(2)}
                 </Text>
                 <Flex gap={4}>
-                  <Button bg="black" color="white" px="10" colorScheme="blackAlpha">
+                  <Button bg="black" onClick={handleAddToCart} disabled={addToCartMutation.isLoading} color="white" px="10" colorScheme="blackAlpha">
                     Add to cart
                   </Button>
                   <IconButton aria-label="Add To Wishlist" icon={<HiOutlineHeart size={20} />} />

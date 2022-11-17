@@ -1,3 +1,5 @@
+import { Product } from "./entity";
+
 export interface LoginFormState {
   emailAddress: string;
   password: string;
@@ -44,4 +46,14 @@ export interface PriceStateValue {
 export interface FilterState {
   sort: string;
   price: string | Array<PriceStateValue>;
+}
+
+export interface UpdateCartState {
+  id: string;
+  product: Product;
+}
+
+export interface RemoveItemFromCartState {
+  id: string;
+  item: string;
 }

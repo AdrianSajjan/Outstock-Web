@@ -43,7 +43,7 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
 
   const { initializeSession } = useSessionStore();
 
-  const mutatation = useMutation<LoginSuccess, AxiosError, LoginFormState>({ mutationFn: login });
+  const mutatation = useMutation<LoginSuccess, string, LoginFormState>({ mutationFn: login });
 
   const initialValues: LoginFormState = {
     emailAddress: "",
@@ -117,7 +117,7 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const [isLoading, setLoading] = React.useState(false);
 
   const { initializeSession } = useSessionStore();
-  const mutatation = useMutation<RegistrationSuccess, AxiosError, RegistrationFormState>({ mutationFn: register });
+  const mutatation = useMutation<RegistrationSuccess, string, RegistrationFormState>({ mutationFn: register });
 
   const initialValues: RegistrationFormState = {
     firstName: "",
