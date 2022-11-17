@@ -9,6 +9,7 @@ import { fetchHomePageData, fetchProducts } from "@shared/api";
 import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/hi";
 import { Box, Button, Container, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import { AxiosErrorResponse, HomePageProps, HomePageServerSideProps } from "@shared/interface";
+import { containerPadding } from "@shared/constants";
 
 const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, women }) => {
   return (
@@ -18,7 +19,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
       </Head>
 
       <Box as="section" borderBottomWidth={1} borderBottomColor="gray.200">
-        <Container paddingTop="12" paddingBottom="12" maxW="container.2xl">
+        <Container px={containerPadding} paddingTop="12" paddingBottom="12" maxW="container.2xl">
           <Grid h="2xl" gridGap={6} templateColumns="repeat(4, 1fr)" templateRows="repeat(2, 1fr)">
             <GridItem colSpan={2} rowSpan={2} position="relative">
               <Box boxSize="full" position="relative">
@@ -71,7 +72,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
       </Box>
 
       <Box as="section">
-        <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
+        <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Heading textTransform="uppercase" size="lg" mb="12">
             Women&apos;s
           </Heading>
@@ -91,7 +92,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
       </Box>
 
       <Box as="section">
-        <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
+        <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Heading textTransform="uppercase" size="lg" mb="12">
             Men&apos;s
           </Heading>
@@ -111,7 +112,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
       </Box>
 
       <Box as="section">
-        <Container maxW="container.2xl" paddingTop="28" paddingBottom="2">
+        <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="2">
           <Grid templateColumns="repeat(2, 1fr)" gap={16}>
             {banner.map(({ caption, image, title, _id }) => (
               <GridItem key={_id}>
@@ -133,7 +134,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
       </Box>
 
       <Box as="section">
-        <Container maxW="container.2xl" paddingTop="28" paddingBottom="24">
+        <Container px={containerPadding} maxW="container.2xl" paddingTop="28" paddingBottom="24">
           <Box>
             <Heading textTransform="uppercase" size="lg">
               Latest From Blog

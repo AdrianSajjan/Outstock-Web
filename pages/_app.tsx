@@ -1,6 +1,7 @@
 import MainLayout from "@layout/Main";
 import { client } from "@shared/api";
 import type { AppProps } from "next/app";
+import NProgress from "nextjs-progressbar";
 import { useAuthentication } from "@shared/hooks";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
@@ -53,6 +54,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
       <QueryClientProvider client={client}>
+        <NProgress />
         <MainLayout isLoadingComplete={isLoadingComplete}>
           <Component {...pageProps} />
         </MainLayout>

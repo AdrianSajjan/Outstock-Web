@@ -2,11 +2,13 @@ import * as React from "react";
 import NextLink from "next/link";
 import type { NextPage } from "next";
 import { useAppStore } from "@shared/store";
+import { useSessionStore } from "@shared/store";
+import { containerPadding } from "@shared/constants";
 import { CartSidebar, ProfileSidebar, SearchSidebar } from "@components/Sidebar";
 import { RiFacebookCircleFill, RiInstagramFill, RiTwitterFill } from "react-icons/ri";
-import { Box, Button, Container, Heading, IconButton, Input, Link, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Container, Grid, Heading, IconButton, Input, Link, Text, useToast } from "@chakra-ui/react";
 import { HiClock, HiLocationMarker, HiMail, HiPhone, HiSearch, HiShoppingBag, HiUser } from "react-icons/hi";
-import { useSessionStore } from "@shared/store/Session";
+import { useLessThan768px, useLessThan976px, useResponseGrid } from "@shared/hooks";
 
 interface MainLayoutProps {
   isLoadingComplete: boolean;
@@ -17,6 +19,10 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
     useAppStore();
 
   const { isAuthenticated } = useSessionStore();
+
+  const columns = useResponseGrid();
+  const isLessThan768px = useLessThan768px();
+  const isLessThan976px = useLessThan976px();
 
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
@@ -37,8 +43,8 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
   return (
     <>
       <Box as="header" shadow="base" position="fixed" top={0} zIndex={50} width="full">
-        <Box bg="black">
-          <Container maxW="container.2xl" display="flex" alignItems="center" justifyContent="space-between" h={30}>
+        <Box bg="black" display={isLessThan768px ? "none" : "block"}>
+          <Container px={{ base: "14", "2xl": "6" }} maxW="container.2xl" display="flex" alignItems="center" justifyContent="space-between" h={30}>
             <Box display="flex" columnGap={10}>
               <Box display="flex" color="gray.300" alignItems="center" columnGap={1}>
                 <HiPhone />
@@ -67,30 +73,24 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
           </Container>
         </Box>
         <Box as="nav" bg="white">
-          <Container maxW="container.2xl" h={90} display="flex" alignItems="center" justifyContent="space-between">
+          <Container px={containerPadding} maxW="container.2xl" h={90} display="flex" alignItems="center" justifyContent="space-between">
             <NextLink href="/" passHref>
               <Heading size="lg" textTransform="uppercase" fontFamily="brand" fontWeight="bold" cursor="pointer">
                 Outstock
               </Heading>
             </NextLink>
-            <Box display="flex" alignItems="center" columnGap={10} fontWeight="medium">
+            <Box display={isLessThan768px ? "none" : "flex"} alignItems="center" columnGap={10} fontWeight="medium">
               <NextLink href="/women" passHref>
                 <Link fontWeight="medium">Women</Link>
               </NextLink>
               <NextLink href="/men" passHref>
                 <Link>Men</Link>
               </NextLink>
-              <NextLink href="/beauty" passHref>
-                <Link>Beauty</Link>
-              </NextLink>
-              <NextLink href="/accessories" passHref>
-                <Link>Accessories</Link>
-              </NextLink>
               <NextLink href="/contact" passHref>
-                <Link>Contact Us</Link>
+                <Link>Contact</Link>
               </NextLink>
               <NextLink href="/about" passHref>
-                <Link>About Us</Link>
+                <Link>About</Link>
               </NextLink>
             </Box>
             <Box display="flex" columnGap={4}>
@@ -104,20 +104,20 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
       <CartSidebar isOpen={isCartSidebarOpen} handleClose={() => setCartSidebarOpen(false)} />
       <ProfileSidebar isOpen={isProfileSidebarOpen} isLoadingComplete={isLoadingComplete} handleClose={() => setProfileSidebarOpen(false)} />
       <SearchSidebar isOpen={isSearchSidebarOpen} handleClose={() => setSearchSidebarOpen(false)} />
-      <Box as="main" marginTop={120} bg="white">
+      <Box as="main" marginTop={isLessThan768px ? 90 : 120} bg="white">
         {children}
       </Box>
       <Box as="footer">
         <Box bg="black" py="4" color="white">
-          <Container maxW="container.2xl" display="flex" alignItems="center" justifyContent="space-between">
-            <Text textTransform="uppercase">Be in touch with us : </Text>
-            <Box display="flex" flex={1} alignItems="center" justifyContent="center" columnGap={4}>
+          <Container px={containerPadding} maxW="container.2xl" display="flex" alignItems="center" justifyContent="space-between">
+            {!isLessThan976px ? <Text textTransform="uppercase">Be in touch with us : </Text> : null}
+            <Box display="flex" flex={1} alignItems="Star" justifyContent={isLessThan976px ? "flex-start" : "center"} columnGap={4}>
               <Input placeholder="Enter your email" backgroundColor="gray.600" border={0} w="full" maxW="sm" />
               <Button px="6" variant="outline" borderColor="gray.400" color="gray.400" _hover={{ backgroundColor: "gray.400", color: "black" }}>
                 Join Us
               </Button>
             </Box>
-            <Box display="flex" columnGap={6} color="gray.300">
+            <Box columnGap={6} color="gray.300" display={isLessThan768px ? "none" : "flex"}>
               <Link href="https://www.facebook.com">
                 <RiFacebookCircleFill size={20} />
               </Link>
@@ -131,9 +131,9 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
           </Container>
         </Box>
         <Box bg="white" py="12">
-          <Container maxW="container.2xl">
-            <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={16}>
-              <Box display="flex" flexDir="column" gap={6}>
+          <Container px={containerPadding} maxW="container.2xl">
+            <Grid templateColumns={columns} gap={16}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Categories
                 </Heading>
@@ -158,7 +158,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Information
                 </Heading>
@@ -183,7 +183,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Useful Links
                 </Heading>
@@ -208,7 +208,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Contact Us
                 </Heading>
@@ -231,16 +231,16 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </Box>
               </Box>
-            </Box>
+            </Grid>
           </Container>
         </Box>
         <Box bg="gray.100" py="4">
-          <Container maxW="container.2xl">
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+          <Container px={containerPadding} maxW="container.2xl">
+            <Box display="flex" alignItems="center" flexWrap="wrap" gap="2" justifyContent={isLessThan768px ? "center" : "space-between"}>
+              <Text fontSize="sm" textAlign="center" fontWeight="semibold" color="gray.600">
                 Copyright &copy; 2022 All Rights Reserved
               </Text>
-              <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+              <Text fontSize="sm" textAlign="center" fontWeight="semibold" color="gray.600">
                 Designed and Developed by <span style={{ fontWeight: "bold", color: "black" }}>Adrian Sajjan</span>
               </Text>
             </Box>

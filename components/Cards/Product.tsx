@@ -4,7 +4,7 @@ import NextLink from "next/link";
 import { useMemo } from "react";
 import { StarRating } from "@components/Rating";
 import { Box, HStack, Text } from "@chakra-ui/react";
-import { Category, ProductCardProps } from "@shared/interface";
+import { ProductCardProps } from "@shared/interface";
 
 const ProductCard: NextPage<ProductCardProps> = ({ images, name, price, currency, slug, category, averageRating }) => {
   const href = useMemo(() => {
