@@ -12,7 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { GetServerSideProps, NextPage } from "next";
 import { client, fetchProductBySlug, addToCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
 import { acceptedCategoryRoutes, containerPadding } from "@shared/constants";
-import { Cart, DetailsPageProps, DetailsPageServerSideProps, FetchCartSuccess, UpdateCartState } from "@shared/interface";
+import { Cart, DetailsPageProps, DetailsPageServerSideProps, FetchCartSuccess, GenericErrorResponse, UpdateCartState } from "@shared/interface";
 import {
   Box,
   Button,
@@ -61,7 +61,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
 
   const cart = client.getQueryData<Cart>(["cart"]);
 
-  const addToCartMutation = useMutation<FetchCartSuccess, string, UpdateCartState>({ mutationFn: addToCart });
+  const addToCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, UpdateCartState>({ mutationFn: addToCart });
 
   const handleAddToCart = () => {
     if (!cart) return toast({ title: "Coudn't fetch cart", description: "Please refresh the page and try again", status: "warning" });
@@ -74,7 +74,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
             client.invalidateQueries({ queryKey: ["cart"] });
           },
           onError: (error) => {
-            toast({ title: "Unable to add to Cart", description: error, status: "error" });
+            toast({ title: "Unable to add to Cart", description: error.message, status: "error" });
           },
         }
       );

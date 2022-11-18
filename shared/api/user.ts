@@ -1,5 +1,4 @@
-import { Cart, ErrorResponse, FetchCartSuccess, RemoveItemFromCartState, UpdateCartState } from "@shared/interface";
-import { AxiosError } from "axios";
+import { AxiosErrorResponse, Cart, FetchCartSuccess, RemoveItemFromCartState, UpdateCartState } from "@shared/interface";
 import api from "./api";
 
 export const fetchPaymentPublicKey = async (): Promise<{ key: string }> => {
@@ -7,8 +6,8 @@ export const fetchPaymentPublicKey = async (): Promise<{ key: string }> => {
     const res = await api.get("/user/payment/key");
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
 
@@ -17,8 +16,8 @@ export const fetchCart = async (): Promise<Cart> => {
     const res = await api.get("/cart/active");
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
 
@@ -27,8 +26,8 @@ export const addToCart = async (data: UpdateCartState): Promise<FetchCartSuccess
     const res = await api.post(`/cart/${data.id}/add`, data);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
 
@@ -37,8 +36,8 @@ export const removeProductFromCart = async (data: UpdateCartState): Promise<Fetc
     const res = await api.post(`/cart/${data.id}/delete`, data);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
 
@@ -47,7 +46,7 @@ export const removeItemFromCart = async ({ id, item }: RemoveItemFromCartState):
     const res = await api.delete(`/cart/${id}/item/${item}`);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };

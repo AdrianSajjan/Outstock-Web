@@ -18,7 +18,7 @@ import { useSessionStore } from "@shared/store";
 import { CartProductCard } from "@components/Cards";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { addToCart, client, fetchCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
-import { FetchCartSuccess, Product, RemoveItemFromCartState, UpdateCartState } from "@shared/interface";
+import { FetchCartSuccess, GenericErrorResponse, Product, RemoveItemFromCartState, UpdateCartState } from "@shared/interface";
 
 interface Props {
   isOpen: boolean;
@@ -31,9 +31,9 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
 
   const cart = useQuery({ queryKey: ["cart"], queryFn: fetchCart, enabled: isAuthenticated });
 
-  const addToCartMutation = useMutation<FetchCartSuccess, string, UpdateCartState>({ mutationFn: addToCart });
-  const removeProductFromCartMutation = useMutation<FetchCartSuccess, string, UpdateCartState>({ mutationFn: removeProductFromCart });
-  const removeItemFromCartMutation = useMutation<FetchCartSuccess, string, RemoveItemFromCartState>({ mutationFn: removeItemFromCart });
+  const addToCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, UpdateCartState>({ mutationFn: addToCart });
+  const removeProductFromCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, UpdateCartState>({ mutationFn: removeProductFromCart });
+  const removeItemFromCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, RemoveItemFromCartState>({ mutationFn: removeItemFromCart });
 
   const handleAdd = (product: Product) => {
     if (cart.data)
@@ -45,7 +45,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
             client.invalidateQueries({ queryKey: ["cart"] });
           },
           onError: (error) => {
-            toast({ title: "Unable to add to Cart", description: error, status: "error" });
+            toast({ title: "Unable to add to Cart", description: error.message, status: "error" });
           },
         }
       );
@@ -61,7 +61,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
             client.invalidateQueries({ queryKey: ["cart"] });
           },
           onError: (error) => {
-            toast({ title: "Unable to remove from Cart", description: error, status: "error" });
+            toast({ title: "Unable to remove from Cart", description: error.message, status: "error" });
           },
         }
       );
@@ -77,7 +77,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
             client.invalidateQueries({ queryKey: ["cart"] });
           },
           onError: (error) => {
-            toast({ title: "Unable to remove from Cart", description: error, status: "error" });
+            toast({ title: "Unable to remove from Cart", description: error.message, status: "error" });
           },
         }
       );

@@ -1,5 +1,4 @@
-import { AxiosError } from "axios";
-import { CreateOrderState, ErrorResponse, Order, UpdateOrderState } from "@shared/interface";
+import { AxiosErrorResponse, CreateOrderState, Order, UpdateOrderState } from "@shared/interface";
 import api from "./api";
 
 export const createOrder = async (data: CreateOrderState): Promise<Order> => {
@@ -7,8 +6,8 @@ export const createOrder = async (data: CreateOrderState): Promise<Order> => {
     const res = await api.post("/orders", data);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
 
@@ -17,7 +16,7 @@ export const updateOrder = async (data: UpdateOrderState): Promise<Order> => {
     const res = await api.patch(`/orders/${data.id}`, data);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };

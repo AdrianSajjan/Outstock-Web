@@ -1,6 +1,5 @@
-import { AxiosError } from "axios";
 import { perRequestProductLimit } from "@shared/constants";
-import { ErrorResponse, FetchProductsSuccess, FetchProductState, FetchProductSuccess } from "@shared/interface";
+import { AxiosErrorResponse, FetchProductsSuccess, FetchProductState, FetchProductSuccess } from "@shared/interface";
 import api from "./api";
 
 type FetchProductsProps = Omit<FetchProductsSuccess, "nextPage">;
@@ -10,8 +9,8 @@ export const fetchProducts = async (query: FetchProductState): Promise<FetchProd
     const res = await api.get<FetchProductsProps>("/product", { params: { ...query, limit: perRequestProductLimit } });
     return { ...res.data, nextPage: query.page + 1 };
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
 
@@ -20,7 +19,7 @@ export const fetchProductBySlug = async (slug: string): Promise<FetchProductSucc
     const res = await api.get<FetchProductSuccess>(`/product/${slug}`);
     return res.data;
   } catch (e) {
-    const error = e as AxiosError<ErrorResponse>;
-    throw error.response ? error.response.data.message : error.message;
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };

@@ -2,6 +2,14 @@ import { AxiosError } from "axios";
 import { Cart, Product, User } from "./entity";
 import { HomePageBanner, HomePageBlog, HomePageHero } from "./pages";
 
+export type AuthenticateSessionSuccess = User;
+
+export type FetchProductSuccess = Product;
+
+export type FetchCartSuccess = Cart;
+
+export type AxiosErrorResponse = AxiosError<ErrorResponse>;
+
 export interface FetchHomePageDataSuccess {
   _id: string;
   name: string;
@@ -14,8 +22,6 @@ export interface HomePageSiteData {
   banner: HomePageBanner;
   hero: HomePageHero;
 }
-
-export type AuthenticateSessionSuccess = User;
 
 export interface LoginSuccess {
   user: any;
@@ -44,14 +50,13 @@ export interface FetchProductsSuccess {
   products: Array<Product>;
 }
 
-export type FetchProductSuccess = Product;
-
-export type FetchCartSuccess = Cart;
-
 export interface ErrorResponse {
   status: number;
   error: string;
   message: string;
 }
 
-export type AxiosErrorResponse = AxiosError<ErrorResponse>;
+export interface GenericErrorResponse {
+  status: number;
+  message: string;
+}

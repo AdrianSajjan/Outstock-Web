@@ -1,7 +1,7 @@
 import axios from "axios";
 import { destroySession, getAccessToken, getRefreshToken, setSession } from "@shared/utils";
 import { OAuth2Success } from "@shared/interface";
-import { useSessionStore } from "@shared/store";
+import { apiStore, useSessionStore } from "@shared/store";
 import { createStandaloneToast } from "@chakra-ui/react";
 
 const api = axios.create({
@@ -29,7 +29,9 @@ api.interceptors.response.use(
     if (!error.response) return Promise.reject(error);
     const original = error.config;
 
-    if (original.url === "/user/auth/oauth2" || original._retry) {
+    if (error.response.status !== 401 || original._retry) return Promise.reject(error);
+
+    if (original.url === "/user/auth/oauth2") {
       destroySession();
       useSessionStore.getState().reauthenticateSession();
       toast({
@@ -42,20 +44,52 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (error.response.status !== 401) return Promise.reject(error);
+    if (!apiStore.getState().isAuthRefreshing) {
+      apiStore.setState((state) => ({ ...state, isAuthRefreshing: true }));
 
-    original._retry = true;
-    const refreshToken = getRefreshToken();
-    const res = await api.post<OAuth2Success>("/user/auth/oauth2", { refreshToken });
-    setSession(res.data.accessToken, res.data.refreshToken);
-    useSessionStore.getState().updateSessionTokens(res.data);
-    return api({
-      ...original,
-      headers: {
-        ...original.headers,
-        "Content-Type": "application/json",
-      },
-    });
+      original._retry = true;
+      const refreshToken = getRefreshToken();
+
+      const res = await api.post<OAuth2Success>("/user/auth/oauth2", { refreshToken });
+
+      setSession(res.data.accessToken, res.data.refreshToken);
+      useSessionStore.getState().updateSessionTokens(res.data);
+
+      if (apiStore.getState().pendingRequests.length > 0) {
+        console.log("Retrying pending requests");
+        apiStore.getState().pendingRequests.map((request) => console.log(request));
+        Promise.allSettled(apiStore.getState().pendingRequests);
+      }
+
+      apiStore.setState({ isAuthRefreshing: false, pendingRequests: [] });
+
+      const isFormData = original.data instanceof FormData;
+
+      return api({
+        ...original,
+        headers: {
+          ...original.headers,
+          "Content-Type": isFormData ? "multipart/formdata" : "application/json",
+        },
+      });
+    } else {
+      console.log(`Pending request for path: ${error.response.config.url}`);
+      const isFormData = original.data instanceof FormData;
+      apiStore.setState((state) => ({
+        ...state,
+        pendingRequests: [
+          ...state.pendingRequests,
+          api({
+            ...original,
+            headers: {
+              ...original.headers,
+              "Content-Type": isFormData ? "multipart/formdata" : "application/json",
+            },
+          }),
+        ],
+      }));
+      Promise.reject("Request will be parsed after auth is refreshed");
+    }
   }
 );
 

@@ -14,7 +14,6 @@ import {
   HStack,
   Input,
   SkeletonText,
-  Spinner,
   Stack,
   Text,
   useToast,
@@ -22,7 +21,6 @@ import {
 } from "@chakra-ui/react";
 import * as React from "react";
 import Image from "next/image";
-import { AxiosError } from "axios";
 import { login, logout, register } from "@shared/api";
 import { useSessionStore } from "@shared/store";
 import { useMutation } from "@tanstack/react-query";
@@ -37,6 +35,7 @@ import {
   RegistrationFormState,
   RegistrationSuccess,
   LogoutSuccess,
+  GenericErrorResponse,
 } from "@shared/interface";
 import { useLessThan576px } from "@shared/hooks";
 
@@ -47,7 +46,7 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
 
   const { initializeSession } = useSessionStore();
 
-  const mutatation = useMutation<LoginSuccess, string, LoginFormState>({ mutationFn: login });
+  const mutatation = useMutation<LoginSuccess, GenericErrorResponse, LoginFormState>({ mutationFn: login });
 
   const initialValues: LoginFormState = {
     emailAddress: "",
@@ -66,7 +65,7 @@ const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
       },
       onError: (error) => {
         setLoading(false);
-        if (!Array.isArray(error)) return toast({ title: "Login Failed", description: error, status: "error" });
+        if (!Array.isArray(error.message)) return toast({ title: "Login Failed", description: error.message, status: "error" });
       },
     });
   };
@@ -121,7 +120,7 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const [isLoading, setLoading] = React.useState(false);
 
   const { initializeSession } = useSessionStore();
-  const mutatation = useMutation<RegistrationSuccess, string, RegistrationFormState>({ mutationFn: register });
+  const mutatation = useMutation<RegistrationSuccess, GenericErrorResponse, RegistrationFormState>({ mutationFn: register });
 
   const initialValues: RegistrationFormState = {
     firstName: "",
@@ -146,7 +145,7 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
         },
         onError: (error) => {
           setLoading(false);
-          if (!Array.isArray(error)) return toast({ title: "Registration Failed", description: error, status: "error" });
+          if (!Array.isArray(error.message)) return toast({ title: "Registration Failed", description: error.message, status: "error" });
         },
       }
     );
@@ -229,7 +228,7 @@ const Profile = () => {
 
   const { reauthenticateSession, user } = useSessionStore();
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
-  const mutation = useMutation<LogoutSuccess, AxiosError>({ mutationFn: logout });
+  const mutation = useMutation<LogoutSuccess, GenericErrorResponse>({ mutationFn: logout });
 
   const handleLogout = () =>
     mutation.mutate(undefined, {

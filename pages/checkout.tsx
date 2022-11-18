@@ -24,6 +24,7 @@ import {
   CreateOrderFormState,
   CreateOrderState,
   CreateTransactionState,
+  GenericErrorResponse,
   Order,
   RazorpayPaymentFailed,
   RazorpayPaymentSuccess,
@@ -58,9 +59,9 @@ const CheckoutPage: NextPage = () => {
 
   const paymentKey = useQuery({ queryKey: ["payment-key"], queryFn: fetchPaymentPublicKey, enabled: isAuthenticated });
 
-  const createOrderMutation = useMutation<Order, string, CreateOrderState>({ mutationFn: createOrder });
-  const updateOrderMutation = useMutation<Order, string, UpdateOrderState>({ mutationFn: updateOrder });
-  const createTransactionMutation = useMutation<Transaction, string, CreateTransactionState>({ mutationFn: createTransaction });
+  const createOrderMutation = useMutation<Order, GenericErrorResponse, CreateOrderState>({ mutationFn: createOrder });
+  const updateOrderMutation = useMutation<Order, GenericErrorResponse, UpdateOrderState>({ mutationFn: updateOrder });
+  const createTransactionMutation = useMutation<Transaction, GenericErrorResponse, CreateTransactionState>({ mutationFn: createTransaction });
 
   React.useEffect(() => {
     app.setCartSidebarOpen(false);
@@ -133,7 +134,7 @@ const CheckoutPage: NextPage = () => {
                           },
                           onError: (error) => {
                             toast({ title: "Coudn't place order", description: error, status: "error" });
-                            Router.push({ pathname: "/order/failed", query: { error } });
+                            Router.push({ pathname: "/order/failed", query: { ...error } });
                           },
                         }
                       );
@@ -144,7 +145,7 @@ const CheckoutPage: NextPage = () => {
                         {
                           onSettled: () => {
                             toast({ title: "Coudn't place order", description: error, status: "error" });
-                            Router.push({ pathname: "/order/failed", query: { error } });
+                            Router.push({ pathname: "/order/failed", query: { ...error } });
                           },
                         }
                       );
@@ -189,7 +190,7 @@ const CheckoutPage: NextPage = () => {
           },
           onError: (error) => {
             toast({ title: "Coudn't place order", description: error, status: "error" });
-            Router.push({ pathname: "/order/failed", query: { error } });
+            Router.push({ pathname: "/order/failed", query: { ...error } });
           },
         }
       );
