@@ -9,7 +9,6 @@ import { RiFacebookCircleFill, RiInstagramFill, RiTwitterFill } from "react-icon
 import { Box, Button, Container, Grid, Heading, IconButton, Input, Link, Text, useToast } from "@chakra-ui/react";
 import { HiClock, HiLocationMarker, HiMail, HiMenuAlt3, HiPhone, HiSearch, HiShoppingBag, HiUser } from "react-icons/hi";
 import { useLessThan768px, useLessThan976px, use4ColumnResponseGrid, useLessThan1366px, useLessThan576px } from "@shared/hooks";
-import { BottomNavigation } from "@components/Layout";
 
 interface MainLayoutProps {
   isLoadingComplete: boolean;

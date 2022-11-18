@@ -11,7 +11,7 @@ export interface ProductCardProps extends Product {}
 export interface ProfileSidebarProps {
   isOpen: boolean;
   handleClose: () => void;
-  isLoadingComplete: boolean;
+  isLoadingComplete?: boolean;
 }
 
 export interface ProfileFormProps {

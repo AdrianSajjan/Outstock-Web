@@ -1,23 +1,33 @@
 import Head from "next/head";
 import * as React from "react";
+import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { fetchCart } from "@shared/api";
-import { useAppStore } from "@shared/store";
 import { PageHeader } from "@components/Layout";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Container, Divider, HStack, Grid, Text, VStack, GridItem } from "@chakra-ui/react";
 import { containerPadding } from "@shared/constants";
 import { CheckoutProductCard } from "@components/Cards";
+import { useAppStore, useSessionStore } from "@shared/store";
+import { Box, Container, Divider, HStack, Grid, Text, VStack, GridItem } from "@chakra-ui/react";
+import { isBrowser } from "framer-motion";
 
-const CheckoutPage = () => {
+const CheckoutPage: NextPage = () => {
   const router = useRouter();
   const app = useAppStore();
+
+  const { isAuthenticated, isLoading } = useSessionStore();
+
+  const cart = useQuery({ queryKey: ["cart"], queryFn: fetchCart, refetchOnMount: false, enabled: isAuthenticated });
 
   React.useEffect(() => {
     app.setCartSidebarOpen(false);
   }, []);
 
-  const cart = useQuery({ queryKey: ["cart"], queryFn: fetchCart, refetchOnWindowFocus: true });
+  if (isLoading) return null;
+
+  if (!isAuthenticated && isBrowser) {
+    router.push("/");
+  }
 
   return (
     <>

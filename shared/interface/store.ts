@@ -15,9 +15,11 @@ export interface UpdateSessionUser {
 
 export interface SessionStore {
   user: any;
+  isLoading: boolean;
   isAuthenticated: boolean;
   accessToken: string | null;
   refreshToken: string | null;
+  startInitialization: () => void;
   initializeSession: (data: InitializeSession) => void;
   reauthenticateSession: () => void;
   updateSessionTokens: (data: UpdateSessionTokens) => void;
