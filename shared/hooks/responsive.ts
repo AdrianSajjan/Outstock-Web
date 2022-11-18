@@ -2,8 +2,12 @@ import { useMediaQuery } from "@chakra-ui/react";
 
 export const useHeroResponseGrid = () => {
   const [isLessThan1366px] = useMediaQuery("(max-width: 1366px");
-
   return isLessThan1366px ? "repeat(2, 1fr)" : "repeat(4, 1fr)";
+};
+
+export const useCheckoutGrid = () => {
+  const [isLessThan976px] = useMediaQuery("(max-width: 976px");
+  return isLessThan976px ? "repeat(1, 1fr)" : "repeat(14, 1fr)";
 };
 
 export const use4ColumnResponseGrid = () => {
@@ -19,7 +23,7 @@ export const use3ColumnResponseGrid = () => {
 };
 
 export const use2ColumnResponseGrid = () => {
-  const isLessThan976px = useLessThan976px();
+  const [isLessThan976px] = useMediaQuery("(max-width: 976px");
   return isLessThan976px ? "repeat(1, 1fr)" : "repeat(2, 1fr)";
 };
 

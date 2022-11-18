@@ -157,7 +157,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
         <Box bg="white" py="12" display={isLessThan576px ? "none" : "block"}>
           <Container px={containerPadding} maxW="container.2xl">
             <Grid templateColumns={columns} gap={16}>
-              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Categories
                 </Heading>
@@ -182,7 +182,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Information
                 </Heading>
@@ -207,7 +207,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Useful Links
                 </Heading>
@@ -232,7 +232,7 @@ const MainLayout: NextPage<MainLayoutProps> = ({ children, isLoadingComplete }) 
                   </Link>
                 </NextLink>
               </Box>
-              <Box display="flex" alignItems={isLessThan1366px ? "center" : "flex-start"} flexDir="column" gap={6}>
+              <Box display="flex" alignItems={isLessThan768px ? "center" : "flex-start"} flexDir="column" gap={6}>
                 <Heading size="sm" textTransform="uppercase" mb="2">
                   Contact Us
                 </Heading>

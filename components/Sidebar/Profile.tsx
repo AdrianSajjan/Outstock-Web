@@ -7,12 +7,15 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerOverlay,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   HStack,
   Input,
+  SkeletonText,
   Spinner,
+  Stack,
   Text,
   useToast,
   VStack,
@@ -35,6 +38,7 @@ import {
   RegistrationSuccess,
   LogoutSuccess,
 } from "@shared/interface";
+import { useLessThan576px } from "@shared/hooks";
 
 const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
@@ -220,17 +224,11 @@ const RegisterForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   );
 };
 
-const LoadingState = () => {
-  return (
-    <Box boxSize="full" position="relative">
-      <Spinner position="absolute" top="50%" left="50%" />
-    </Box>
-  );
-};
-
 const Profile = () => {
+  const isLessThan576px = useLessThan576px();
+
+  const { reauthenticateSession, user } = useSessionStore();
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
-  const { reauthenticateSession } = useSessionStore();
   const mutation = useMutation<LogoutSuccess, AxiosError>({ mutationFn: logout });
 
   const handleLogout = () =>
@@ -251,11 +249,27 @@ const Profile = () => {
         <DrawerCloseButton color="white" position="initial" />
       </HStack>
       <DrawerBody>
-        <VStack mt="6">
-          <Box position="relative" h="32" w="32">
-            <Image src="http://localhost:5000/static/profile/default-avatar.jpg" layout="fill" objectFit="contain" />
+        <Stack direction={isLessThan576px ? "column" : "row"} mt="6" alignItems="center" spacing="4">
+          <Box position="relative" h="28" w="28">
+            <Image src="http://localhost:5000/static/profile/default-avatar.jpg" layout="fill" objectFit="cover" />
           </Box>
-        </VStack>
+          <Box>
+            <HStack>
+              <Text fontWeight="semibold">Full Name</Text>
+              <Text>
+                {user!.firstName} {user!.lastName}
+              </Text>
+            </HStack>
+            <Flex wrap="wrap" columnGap="2">
+              <Text fontWeight="semibold">Email</Text>
+              <Text>{user!.emailAddress}</Text>
+            </Flex>
+            <HStack>
+              <Text fontWeight="semibold">Phone Number</Text>
+              <Text>{user!.phoneNumber}</Text>
+            </HStack>
+          </Box>
+        </Stack>
         <VStack spacing="4" mt="8">
           <Button isFullWidth>Edit Profile</Button>
           <Button isFullWidth>My Orders</Button>
@@ -281,17 +295,17 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ handleClose, isOpen, is
   return (
     <Drawer isOpen={isOpen} onClose={handleClose} size="sm">
       <DrawerOverlay />
-      <DrawerContent>
-        {!isLoadingComplete ? (
-          <LoadingState />
-        ) : isAuthenticated ? (
-          <Profile />
-        ) : form === 0 ? (
-          <LoginForm handleFormChange={handleFormChange} />
-        ) : (
-          <RegisterForm handleFormChange={handleFormChange} />
-        )}
-      </DrawerContent>
+      <SkeletonText noOfLines={8} skeletonHeight="4" spacing="4" isLoaded={isLoadingComplete}>
+        <DrawerContent>
+          {isAuthenticated ? (
+            <Profile />
+          ) : form === 0 ? (
+            <LoginForm handleFormChange={handleFormChange} />
+          ) : (
+            <RegisterForm handleFormChange={handleFormChange} />
+          )}
+        </DrawerContent>
+      </SkeletonText>
     </Drawer>
   );
 };

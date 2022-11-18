@@ -10,7 +10,7 @@ const CheckoutProductCard: NextPage<CartItem> = ({ product, quantity, _id }) => 
       <Box h="36" w="28" pos="relative">
         <Image src={product.images[0]} layout="fill" objectFit="cover" />
       </Box>
-      <VStack alignItems="start" h="36" flex={1}>
+      <VStack alignItems="start" justifyContent="center" h="36" flex={1}>
         <Text fontSize="lg" color="gray.600">
           {product.name} - {_.upperFirst(product.category.name)}
         </Text>

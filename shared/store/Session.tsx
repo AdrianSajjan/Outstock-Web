@@ -7,7 +7,7 @@ export const useSessionStore = create<SessionStore>((set) => ({
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-  startInitialization: () => set((state) => ({ ...state, isLoading: true })),
+  setupInitialization: (value: boolean) => set((state) => ({ ...state, isLoading: value })),
   initializeSession: (data: InitializeSession) => set((state) => ({ ...state, ...data, isAuthenticated: true, isLoading: false })),
   reauthenticateSession: () =>
     set((state) => ({ ...state, accessToken: null, refreshToken: null, isAuthenticated: false, user: null, isLoading: false })),

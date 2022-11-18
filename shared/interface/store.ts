@@ -1,3 +1,5 @@
+import { User } from "./entity";
+
 export interface InitializeSession {
   user: any;
   accessToken: string;
@@ -14,12 +16,12 @@ export interface UpdateSessionUser {
 }
 
 export interface SessionStore {
-  user: any;
+  user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   accessToken: string | null;
   refreshToken: string | null;
-  startInitialization: () => void;
+  setupInitialization: (value: boolean) => void;
   initializeSession: (data: InitializeSession) => void;
   reauthenticateSession: () => void;
   updateSessionTokens: (data: UpdateSessionTokens) => void;

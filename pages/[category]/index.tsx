@@ -1,4 +1,4 @@
-import { Box, Button, Container, Flex, Grid, GridItem, Spinner, useMediaQuery } from "@chakra-ui/react";
+import { Box, Button, Container, Flex, Grid, GridItem, SkeletonText, Spinner, useMediaQuery } from "@chakra-ui/react";
 import { ProductCard } from "@components/Cards";
 import { ProductFilterAndSort } from "@components/Filter";
 import _ from "lodash";
@@ -45,11 +45,7 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
         <Container px={containerPadding} maxW="container.2xl" py="8">
           <ProductFilterAndSort {...{ sort, ...rest }} />
           <Box pt="16">
-            {query.isFetching && !query.isFetchingNextPage ? (
-              <Flex h="24" align="center" justify="center">
-                <Spinner size="lg" />
-              </Flex>
-            ) : (
+            <SkeletonText noOfLines={8} skeletonHeight="4" spacing={4} isLoaded={query.isFetchedAfterMount}>
               <Grid placeItems="center" templateColumns={columns} gridGap={10}>
                 {query.data?.pages.map((page) =>
                   page.products.map((product) => (
@@ -59,11 +55,11 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
                   ))
                 )}
               </Grid>
-            )}
+            </SkeletonText>
           </Box>
           <Box pt="16" pb="16">
             <Button isDisabled={!query.hasNextPage} isLoading={query.isFetchingNextPage} onClick={handleNextPage} isFullWidth>
-              Load More
+              {query.hasNextPage ? "Load More" : "End of Products"}
             </Button>
           </Box>
         </Container>
