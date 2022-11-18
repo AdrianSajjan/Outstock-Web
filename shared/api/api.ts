@@ -2,10 +2,13 @@ import axios from "axios";
 import { destroySession, getAccessToken, getRefreshToken, setSession } from "@shared/utils";
 import { OAuth2Success } from "@shared/interface";
 import { useSessionStore } from "@shared/store";
+import { createStandaloneToast } from "@chakra-ui/react";
 
 const api = axios.create({
   baseURL: "http://192.168.0.107:5000/",
 });
+
+const toast = createStandaloneToast();
 
 api.interceptors.request.use(
   (config) => {
@@ -26,20 +29,26 @@ api.interceptors.response.use(
     if (!error.response) return Promise.reject(error);
     const original = error.config;
 
-    if (error.response.status !== 401 || original._retry) return Promise.reject(error);
-
-    if (original.url === "/user/auth/oauth2") {
+    if (original.url === "/user/auth/oauth2" || original._retry) {
       destroySession();
       useSessionStore.getState().reauthenticateSession();
+      toast({
+        title: "Authentication Error",
+        description: `${error.response.data.message || error.message}. Kindly login again.`,
+        variant: "left-accent",
+        position: "top",
+        isClosable: true,
+      });
       return Promise.reject(error);
     }
+
+    if (error.response.status !== 401) return Promise.reject(error);
 
     original._retry = true;
     const refreshToken = getRefreshToken();
     const res = await api.post<OAuth2Success>("/user/auth/oauth2", { refreshToken });
     setSession(res.data.accessToken, res.data.refreshToken);
     useSessionStore.getState().updateSessionTokens(res.data);
-    console.log(original.headers);
     return api({
       ...original,
       headers: {

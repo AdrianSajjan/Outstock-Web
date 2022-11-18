@@ -1,33 +1,44 @@
-import Head from "next/head";
-import * as React from "react";
-import { NextPage } from "next";
-import { useRouter } from "next/router";
-import { fetchCart, fetchPaymentPublicKey } from "@shared/api";
-import { PageHeader } from "@components/Layout";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { containerPadding } from "@shared/constants";
-import { CheckoutProductCard } from "@components/Cards";
-import { useAppStore, useSessionStore } from "@shared/store";
 import {
   Box,
+  Button,
   Container,
   Divider,
-  HStack,
-  Grid,
-  Text,
-  VStack,
-  GridItem,
   FormControl,
-  FormLabel,
   FormErrorMessage,
+  FormLabel,
+  Grid,
+  GridItem,
+  HStack,
   Input,
   SkeletonText,
-  Button,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { isBrowser } from "framer-motion";
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import { isFieldInvalid } from "@shared/utils";
+import { CheckoutProductCard } from "@components/Cards";
+import { PageHeader } from "@components/Layout";
+import { createOrder, createTransaction, fetchCart, fetchPaymentPublicKey, updateOrder } from "@shared/api";
+import { containerPadding } from "@shared/constants";
 import { useCheckoutGrid } from "@shared/hooks";
+import {
+  CreateOrderFormState,
+  CreateOrderState,
+  CreateTransactionState,
+  Order,
+  RazorpayPaymentFailed,
+  RazorpayPaymentSuccess,
+  Transaction,
+  UpdateOrderState,
+} from "@shared/interface";
+import { useAppStore, useSessionStore } from "@shared/store";
+import { isFieldInvalid } from "@shared/utils";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
+import { isBrowser } from "framer-motion";
+import { NextPage } from "next";
+import Head from "next/head";
+import Router, { useRouter } from "next/router";
+import * as React from "react";
 import useRazorpay, { RazorpayOptions } from "react-razorpay";
 
 const CheckoutPage: NextPage = () => {
@@ -35,63 +46,156 @@ const CheckoutPage: NextPage = () => {
   const app = useAppStore();
   const Razorpay = useRazorpay();
 
-  const { isAuthenticated, isLoading } = useSessionStore();
+  const formikRef = React.useRef<FormikProps<CreateOrderFormState>>(null);
+
+  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
+
+  const { isAuthenticated, isLoading, user } = useSessionStore();
 
   const columns = useCheckoutGrid();
 
-  const cart = useQuery({ queryKey: ["cart"], queryFn: fetchCart, refetchOnMount: false, enabled: isAuthenticated });
+  const cart = useQuery({ queryKey: ["cart"], queryFn: fetchCart, enabled: isAuthenticated });
 
-  const paymentKey = useQuery({
-    queryKey: ["payment-key"],
-    queryFn: fetchPaymentPublicKey,
-    enabled: isAuthenticated,
-  });
+  const paymentKey = useQuery({ queryKey: ["payment-key"], queryFn: fetchPaymentPublicKey, enabled: isAuthenticated });
 
-  const createOrderMutation = useMutation({
-    mutationFn: async () => {
-      return { _id: "" };
-    },
-  });
-
-  console.log(paymentKey.data);
+  const createOrderMutation = useMutation<Order, string, CreateOrderState>({ mutationFn: createOrder });
+  const updateOrderMutation = useMutation<Order, string, UpdateOrderState>({ mutationFn: updateOrder });
+  const createTransactionMutation = useMutation<Transaction, string, CreateTransactionState>({ mutationFn: createTransaction });
 
   React.useEffect(() => {
     app.setCartSidebarOpen(false);
   }, []);
 
-  const initialValues = {};
+  const initialValues: CreateOrderFormState = {
+    fullName: "",
+    addressLineOne: "",
+    cityOrDistrict: "",
+    emailAddress: "",
+    phoneNumber: "",
+    pinCode: "",
+    state: "",
+    addressLineTwo: "",
+  };
 
   const onSubmit = React.useCallback(
-    (values: any) => {
-      if (!cart.data || !paymentKey.data) return;
-      createOrderMutation.mutate(undefined, {
-        onSuccess: (order) => {
-          const options: RazorpayOptions = {
-            amount: `${cart.data.totalPrice * 100}`,
-            currency: "INR",
-            key: paymentKey.data.key,
-            name: "Outstock",
-            order_id: order._id,
-            handler: (response: any) => {
-              alert(JSON.stringify(response));
-            },
-          };
+    (values: CreateOrderFormState) => {
+      if (!cart.data || !paymentKey.data || !user) return;
+      createOrderMutation.mutate(
+        { ...values, cart: cart.data._id, totalAmount: cart.data.totalPrice },
+        {
+          onSuccess: (order) => {
+            const options: RazorpayOptions = {
+              amount: (cart.data.totalPrice * 100).toFixed(2),
+              currency: "INR",
+              key: paymentKey.data.key,
+              name: "Outstock",
+              retry: {
+                enabled: false,
+              },
+              notes: {
+                addressLineOne: values.addressLineOne,
+                addressLineTwo: values.addressLineTwo,
+              },
+              description: `Place order of products. Amount Payable: Rs. ${cart.data.totalPrice}`,
+              prefill: {
+                name: order.fullName,
+                email: order.emailAddress,
+                contact: order.phoneNumber,
+              },
+              order_id: order.oid,
+              handler: (response: RazorpayPaymentSuccess) => {
+                const razorpayOrderID = response.razorpay_order_id;
+                const razorpayPaymentID = response.razorpay_payment_id;
+                const razorpaySignature = response.razorpay_signature;
 
-          const rzp = new Razorpay(options);
+                createTransactionMutation.mutate(
+                  {
+                    amount: order.totalAmount,
+                    emailAddress: order.emailAddress,
+                    phoneNumber: order.phoneNumber,
+                    order: order._id,
+                    oid: order.oid,
+                    razorpayOrderID,
+                    razorpayPaymentID,
+                    razorpaySignature,
+                  },
+                  {
+                    onSuccess: (transaction) => {
+                      updateOrderMutation.mutate(
+                        { status: "placed", id: order._id },
+                        {
+                          onSuccess: () => {
+                            toast({ title: "Order placed", description: `Order with the id of ${order.oid} has been placed`, status: "success" });
+                            Router.push({
+                              pathname: "/order/success",
+                              query: { id: order.oid, invoice: transaction.paymentID, signature: razorpaySignature },
+                            });
+                          },
+                          onError: (error) => {
+                            toast({ title: "Coudn't place order", description: error, status: "error" });
+                            Router.push({ pathname: "/order/failed", query: { error } });
+                          },
+                        }
+                      );
+                    },
+                    onError: (error) => {
+                      updateOrderMutation.mutate(
+                        { status: "failed", id: order._id },
+                        {
+                          onSettled: () => {
+                            toast({ title: "Coudn't place order", description: error, status: "error" });
+                            Router.push({ pathname: "/order/failed", query: { error } });
+                          },
+                        }
+                      );
+                    },
+                  }
+                );
+              },
+            };
 
-          rzp.on("payment.failed", (response: any) => {
-            alert(JSON.stringify(response));
-          });
+            const razorpay = new Razorpay(options);
 
-          rzp.open();
-        },
-        onError: () => {},
-      });
+            razorpay.on("payment.failed", async ({ error }: RazorpayPaymentFailed) => {
+              createTransactionMutation.mutate(
+                {
+                  amount: order.totalAmount,
+                  emailAddress: order.emailAddress,
+                  phoneNumber: order.phoneNumber,
+                  order: order._id,
+                  oid: order.oid,
+                  razorpayOrderID: error.metadata.order_id,
+                  razorpayPaymentID: error.metadata.payment_id,
+                  razorpaySignature: "",
+                },
+                {
+                  onSettled: () => {
+                    updateOrderMutation.mutate(
+                      { status: "failed", id: order._id },
+                      {
+                        onSettled: () => {
+                          toast({ title: "Coudn't place order", description: error.code + " " + error.description, status: "error" });
+                          const { metadata, ...rest } = error;
+                          Router.push({ pathname: "/order/failed", query: { ...rest, ...metadata } });
+                        },
+                      }
+                    );
+                  },
+                }
+              );
+            });
+
+            razorpay.open();
+          },
+          onError: (error) => {
+            toast({ title: "Coudn't place order", description: error, status: "error" });
+            Router.push({ pathname: "/order/failed", query: { error } });
+          },
+        }
+      );
     },
-    [Razorpay]
+    [Razorpay, cart.data, paymentKey.data, user]
   );
-
-  console.log(isLoading);
 
   if (isLoading) return null;
 
@@ -109,15 +213,15 @@ const CheckoutPage: NextPage = () => {
         <Container px={containerPadding} maxW="container.lg" pt={{ base: "12", lg: "16" }} pb="16">
           <Grid templateColumns={columns} gap="16">
             <GridItem colSpan={{ base: 1, md: 8 }}>
-              <Formik initialValues={initialValues} onSubmit={onSubmit}>
+              <Formik innerRef={formikRef} initialValues={initialValues} onSubmit={onSubmit}>
                 {(formik) => (
                   <Form>
-                    <FormControl isInvalid={isFieldInvalid(formik, "firstName")} isRequired>
-                      <FormLabel textTransform="uppercase" htmlFor="first-name">
+                    <FormControl isInvalid={isFieldInvalid(formik, "fullName")} isRequired>
+                      <FormLabel textTransform="uppercase" htmlFor="full-name">
                         Full Name
                       </FormLabel>
-                      <Field as={Input} name="firstName" id="first-name" variant="filled" placeholder="Enter your first name" />
-                      <ErrorMessage name="firstName" component={FormErrorMessage} />
+                      <Field as={Input} name="fullName" id="full-name" variant="filled" placeholder="Enter your full name" />
+                      <ErrorMessage name="fullName" component={FormErrorMessage} />
                     </FormControl>
                     <FormControl mt="6" isInvalid={isFieldInvalid(formik, "emailAddress")} isRequired>
                       <FormLabel textTransform="uppercase" htmlFor="email">
@@ -130,7 +234,7 @@ const CheckoutPage: NextPage = () => {
                       <FormLabel textTransform="uppercase" htmlFor="phone-number">
                         Phone Number
                       </FormLabel>
-                      <Field as={Input} name="phoneNumber" id="phone-number" variant="filled" type="number" placeholder="Enter your phone number" />
+                      <Field as={Input} name="phoneNumber" id="phone-number" variant="filled" placeholder="Enter your phone number" />
                       <ErrorMessage name="phoneNumber" component={FormErrorMessage} />
                     </FormControl>
                     <FormControl mt="6" isInvalid={isFieldInvalid(formik, "addressLineOne")} isRequired>
@@ -147,12 +251,12 @@ const CheckoutPage: NextPage = () => {
                       <Field as={Input} name="addressLineTwo" id="address-2" variant="filled" placeholder="Enter your address line 2" />
                       <ErrorMessage name="addressLineTwo" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "postalCode")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "pinCode")} isRequired>
                       <FormLabel textTransform="uppercase" htmlFor="pin-code">
-                        Postal Code
+                        PIN Code
                       </FormLabel>
-                      <Field as={Input} name="postalCode" id="pin-code" variant="filled" type="number" placeholder="Enter your PIN code" />
-                      <ErrorMessage name="postalCode" component={FormErrorMessage} />
+                      <Field as={Input} name="pinCode" id="pin-code" variant="filled" type="number" placeholder="Enter your PIN code" />
+                      <ErrorMessage name="pinCode" component={FormErrorMessage} />
                     </FormControl>
                     <FormControl mt="6" isInvalid={isFieldInvalid(formik, "cityOrDistrict")} isRequired>
                       <FormLabel textTransform="uppercase" htmlFor="city">

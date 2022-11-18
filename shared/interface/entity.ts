@@ -42,8 +42,57 @@ export interface Cart {
 }
 
 export interface CartItem {
-  _id?: any;
+  _id: any;
   size?: string;
   quantity: number;
   product: Product;
+}
+
+export interface Order {
+  _id: string;
+  user: User;
+  cart: Cart;
+  oid: string;
+  fullName: string;
+  emailAddress: string;
+  phoneNumber: string;
+  state: string;
+  pinCode: string;
+  addressLineOne: string;
+  addressLineTwo?: string;
+  cityOrDistrict: string;
+  totalAmount: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Transaction {
+  user: User;
+  order: Order;
+  paymentID: string;
+  oid: string;
+  amount: number;
+  invoice: string;
+  card?: {
+    lastFourDigits: number;
+    network: string;
+    type: string;
+    subType?: string;
+  };
+  paymentStatus: string;
+  emailAddress: string;
+  refundStatus?: string;
+  refundAmount?: number;
+  error?: {
+    code: string;
+    description: string;
+    source: string;
+    step: string;
+    reason: string;
+  };
+  phoneNumber: string;
+  type: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
