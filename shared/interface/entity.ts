@@ -51,7 +51,8 @@ export interface CartItem {
 export interface Order {
   _id: string;
   user: User;
-  cart: Cart;
+  transactions?: Array<Transaction>;
+  products: Products;
   oid: string;
   fullName: string;
   emailAddress: string;
@@ -66,6 +67,8 @@ export interface Order {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type Products = Array<Omit<CartItem, "_id">>;
 
 export interface Transaction {
   _id: string;

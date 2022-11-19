@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { CheckoutProductCard } from "@components/Cards";
 import { PageHeader } from "@components/Layout";
-import { client, createOrder, createTransaction, fetchCart, fetchPaymentPublicKey, updateCartAsOrdered, updateOrder } from "@shared/api";
+import { client, createOrder, createTransaction, emptyCart, fetchCart, fetchPaymentPublicKey, updateOrder } from "@shared/api";
 import { containerPadding } from "@shared/constants";
 import { useCheckoutGrid } from "@shared/hooks";
 import {
@@ -64,7 +64,7 @@ const CheckoutPage: NextPage = () => {
   const createOrderMutation = useMutation<Order, GenericErrorResponse, CreateOrderState>({ mutationFn: createOrder });
   const updateOrderMutation = useMutation<Order, GenericErrorResponse, UpdateOrderState>({ mutationFn: updateOrder });
   const createTransactionMutation = useMutation<Transaction, GenericErrorResponse, CreateTransactionState>({ mutationFn: createTransaction });
-  const updateCartAsOrderedMutation = useMutation<Cart, GenericErrorResponse, string>({ mutationFn: updateCartAsOrdered });
+  const emptyCartMutation = useMutation<Cart, GenericErrorResponse, string>({ mutationFn: emptyCart });
 
   React.useEffect(() => {
     app.setCartSidebarOpen(false);
@@ -85,7 +85,7 @@ const CheckoutPage: NextPage = () => {
     (values: CreateOrderFormState) => {
       if (!cart.data || cart.data.items.length === 0 || !paymentKey.data || !user) return;
       createOrderMutation.mutate(
-        { ...values, cart: cart.data._id, totalAmount: cart.data.totalPrice },
+        { ...values, products: cart.data.items, totalAmount: cart.data.totalPrice },
         {
           onSuccess: (order) => {
             const options: RazorpayOptions = {
@@ -129,7 +129,7 @@ const CheckoutPage: NextPage = () => {
                         { status: "placed", id: order._id },
                         {
                           onSuccess: () => {
-                            updateCartAsOrderedMutation.mutate(cart.data._id, {
+                            emptyCartMutation.mutate(cart.data._id, {
                               onSuccess: () => {
                                 client.invalidateQueries({ queryKey: ["cart"] });
                               },
@@ -144,7 +144,7 @@ const CheckoutPage: NextPage = () => {
                           },
                           onError: (error) => {
                             toast({ title: "Coudn't place order", description: error, status: "error" });
-                            Router.push({ pathname: "/orders/failed", query: { ...error } });
+                            Router.push({ pathname: "/orders/failed", query: { ...error, invoice: transaction._id, id: order._id } });
                           },
                         }
                       );
@@ -155,7 +155,7 @@ const CheckoutPage: NextPage = () => {
                         {
                           onSettled: () => {
                             toast({ title: "Coudn't place order", description: error, status: "error" });
-                            Router.push({ pathname: "/orders/failed", query: { ...error } });
+                            Router.push({ pathname: "/orders/failed", query: { ...error, id: order._id } });
                           },
                         }
                       );
@@ -180,14 +180,14 @@ const CheckoutPage: NextPage = () => {
                   razorpaySignature: "",
                 },
                 {
-                  onSettled: () => {
+                  onSettled: (data) => {
                     updateOrderMutation.mutate(
                       { status: "failed", id: order._id },
                       {
                         onSettled: () => {
                           toast({ title: "Coudn't place order", description: error.code + " " + error.description, status: "error" });
                           const { metadata, ...rest } = error;
-                          Router.push({ pathname: "/orders/failed", query: { ...rest, ...metadata } });
+                          Router.push({ pathname: "/orders/failed", query: { ...rest, ...metadata, id: order._id, invoice: data?._id } });
                         },
                       }
                     );

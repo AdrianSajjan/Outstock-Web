@@ -30,3 +30,13 @@ export const fetchOrderByID = async (id: string): Promise<Order> => {
     throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
+
+export const fetchAllOrders = async (): Promise<Order[]> => {
+  try {
+    const res = await api.get(`/orders/user`);
+    return res.data;
+  } catch (e) {
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
+  }
+};

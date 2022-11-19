@@ -1,5 +1,5 @@
 export const containerPadding = {
-  base: "6",
+  base: "4",
   sm: "8",
   md: "12",
   lg: "12",

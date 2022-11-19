@@ -51,6 +51,16 @@ export const removeItemFromCart = async ({ id, item }: RemoveItemFromCartState):
   }
 };
 
+export const emptyCart = async (id: string): Promise<FetchCartSuccess> => {
+  try {
+    const res = await api.get(`/cart/${id}/empty`);
+    return res.data;
+  } catch (e) {
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
+  }
+};
+
 export const updateCartAsOrdered = async (id: string): Promise<FetchCartSuccess> => {
   try {
     const res = await api.get(`/cart/${id}/ordered`);

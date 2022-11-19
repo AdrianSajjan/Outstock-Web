@@ -1,24 +1,26 @@
-import Head from "next/head";
-import _ from "lodash";
-import * as React from "react";
-import { useRouter } from "next/router";
+import { Box, Button, Container, Divider, Flex, HStack, SkeletonText, Stack, Text, VisuallyHidden, VStack } from "@chakra-ui/react";
 import { PageHeader } from "@components/Layout";
-import { Box, Container, Divider, Flex, GridItem, HStack, SkeletonText, Text, useToast, VStack } from "@chakra-ui/react";
-import { containerPadding } from "@shared/constants";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { fetchOrderByID, fetchTransactionByID } from "@shared/api";
-import moment from "moment";
+import { containerPadding } from "@shared/constants";
+import { useLessThan768px } from "@shared/hooks";
 import { parsePaymentType } from "@shared/utils";
+import { useQuery } from "@tanstack/react-query";
+import _ from "lodash";
+import moment from "moment";
+import Head from "next/head";
 import Image from "next/image";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
+import * as React from "react";
 
 const OrderSuccessPage = () => {
   const router = useRouter();
 
+  const isLessThan768px = useLessThan768px();
+
   const [orderID, setOrder] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [transactionID, setTransaction] = React.useState<string | null>(null);
-
-  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
   const order = useQuery({
     queryKey: ["order", orderID],
@@ -65,72 +67,87 @@ const OrderSuccessPage = () => {
       <Box as="section" bg="white">
         <Container px={containerPadding} maxW="container.lg" py="12">
           <VStack alignItems="start" spacing="4" mb="6">
-            <SkeletonText isLoaded={isOrderLoaded} skeletonHeight="4">
-              {error ? (
-                <Text fontWeight="semibold" color="red.400">
-                  {error}
-                </Text>
-              ) : (
-                <Text fontWeight="medium">Your order has been confirmed and will reach to you soon.</Text>
-              )}
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4">
+              <Text fontWeight="semibold" color={error ? "red.600" : "black"}>
+                {error || "Your order has been confirmed and will reach to you soon."}
+              </Text>
             </SkeletonText>
             <Divider />
-            <SkeletonText isLoaded={isOrderLoaded && isTransactionLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
-              <HStack spacing="16" align="flex-start">
-                <VStack>
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
+              <Stack direction={isLessThan768px ? "column" : "row"} spacing="0" gap="4" w="full" wrap="wrap" justify="space-between">
+                <Stack>
                   <Text color="gray.500">Order Date</Text>
                   <Text>{moment(order.data?.createdAt).format("LLL")}</Text>
-                </VStack>
-                <VStack>
+                </Stack>
+                <Stack>
                   <Text color="gray.500">Order ID</Text>
                   <Text>{order.data?.oid}</Text>
-                </VStack>
-                <VStack>
+                </Stack>
+                <Stack>
                   <Text color="gray.500">Payment</Text>
                   <Text>{parsePaymentType(transaction.data)}</Text>
-                </VStack>
-                <VStack>
+                </Stack>
+                <Stack>
                   <Text color="gray.500">Address</Text>
                   <Text>
                     {order.data?.addressLineOne}, {order.data?.addressLineTwo}
                   </Text>
-                </VStack>
+                </Stack>
+              </Stack>
+            </SkeletonText>
+            <Divider />
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={6} lineHeight="2">
+              <Box w="full">
+                {order.data?.products.map((item) => (
+                  <Flex py="4" alignItems="center" w="full">
+                    <Box h="32" w="32" pos="relative">
+                      <Image layout="fill" objectFit="cover" src={item.product.images[0]} />
+                    </Box>
+                    <Flex
+                      ml={{ base: "4", md: "8" }}
+                      w="full"
+                      align={{ base: "flex-start", md: "center" }}
+                      direction={{ base: "column", md: "row" }}
+                      gap="1"
+                    >
+                      <Text mr="4">
+                        {item.product.name} - {_.upperFirst(item.product.category.name)}
+                      </Text>
+                      <Text ml={{ base: "0", md: "auto" }} mr={{ base: "4", md: "12" }}>
+                        Qty: {item.quantity}
+                      </Text>
+                      <Text>Rs. {item.product.price * item.quantity}</Text>
+                    </Flex>
+                  </Flex>
+                ))}
+              </Box>
+            </SkeletonText>
+            <Divider />
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
+              <HStack justify="space-between" w="full" py="2">
+                <Text fontSize="lg" fontWeight="semibold">
+                  Total
+                </Text>
+                <Text>Rs. {order.data?.totalAmount}</Text>
               </HStack>
             </SkeletonText>
             <Divider />
-            <Box w="full">
-              {order.data?.cart.items.map((item) => (
-                <Flex py="4" alignItems="center" w="full">
-                  <Box h="32" w="32" bg="red.200" pos="relative">
-                    <Image layout="fill" objectFit="cover" src={item.product.images[0]} />
-                  </Box>
-                  <Text ml="8">
-                    {item.product.name} - {_.upperFirst(item.product.category.name)}
-                  </Text>
-                  <Text ml="auto" mr="12">
-                    Qty: {item.quantity}
-                  </Text>
-                  <Text>Rs. {item.product.price * item.quantity}</Text>
-                </Flex>
-              ))}
-            </Box>
-            <Divider />
-            <HStack justify="space-between" w="full" py="2">
-              <Text fontSize="lg" fontWeight="semibold">
-                Total
-              </Text>
-              <Text>Rs. {order.data?.cart.totalPrice}</Text>
-            </HStack>
-            <Divider />
-            <Box>
-              <Text>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint vel maiores, nostrum quis pariatur dignissimos? Aperiam ducimus
-                cupiditate. We appreciate your business, hope you enjoy your purchase.
-              </Text>
-              <Text fontWeight="semibold" mt="4">
-                Thank You!
-              </Text>
-            </Box>
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={4} lineHeight="2">
+              <Box pb="4">
+                <Text>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint vel maiores, nostrum quis pariatur dignissimos? Aperiam ducimus
+                  cupiditate. We appreciate your business, hope you enjoy your purchase.
+                </Text>
+                <Text fontWeight="semibold" mt="4">
+                  Thank You!
+                </Text>
+              </Box>
+            </SkeletonText>
+            <NextLink href="/" passHref>
+              <Button as="a" isFullWidth>
+                Go Back To Home
+              </Button>
+            </NextLink>
           </VStack>
         </Container>
       </Box>

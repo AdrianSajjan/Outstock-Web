@@ -1,4 +1,4 @@
-import { Product } from "./entity";
+import { Product, Products } from "./entity";
 
 export interface LoginFormState {
   emailAddress: string;
@@ -75,10 +75,10 @@ export interface CreateOrderFormState {
 }
 
 export interface CreateOrderState {
-  cart: string;
   state: string;
   pinCode: string;
   fullName: string;
+  products: Products;
   emailAddress: string;
   phoneNumber: string;
   totalAmount: number;
