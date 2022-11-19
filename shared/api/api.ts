@@ -5,7 +5,7 @@ import { apiStore, useSessionStore } from "@shared/store";
 import { createStandaloneToast } from "@chakra-ui/react";
 
 const api = axios.create({
-  baseURL: "http://192.168.0.107:5000/",
+  baseURL: "http://localhost:5000/",
 });
 
 const toast = createStandaloneToast();

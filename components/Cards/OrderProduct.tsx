@@ -1,9 +1,14 @@
-import { Box, Divider, Flex, Text } from "@chakra-ui/react";
 import _ from "lodash";
-import { NextPage } from "next";
 import Image from "next/image";
+import { NextPage } from "next";
+import { Box, Divider, Flex, Text } from "@chakra-ui/react";
+import { CartItem } from "@shared/interface";
 
-const OrderProductCard: NextPage<any> = ({ item }) => {
+interface OrderProductCardProps {
+  item: Omit<CartItem, "_id">;
+}
+
+const OrderProductCard: NextPage<OrderProductCardProps> = ({ item }) => {
   return (
     <Box w="full" px={{ base: "0", md: "16" }}>
       <Flex py="4" alignItems="center" w="full">

@@ -7,6 +7,6 @@ export const isFieldInvalid = (formik: FormikProps<any>, field: string) => {
 
 export const parsePaymentType = (transaction?: Transaction) => {
   if (!transaction) return "";
-  if (transaction.method === "card") return `${transaction.card?.network} - ${transaction.card?.lastFourDigits}`;
-  else return transaction.paymentID;
+  else if (transaction.paymentStatus === "failed" || transaction.method !== "card") return transaction.paymentID;
+  else return `${transaction.card?.network} - ${transaction.card?.lastFourDigits}`;
 };

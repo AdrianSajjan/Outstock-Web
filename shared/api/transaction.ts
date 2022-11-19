@@ -28,3 +28,13 @@ export const fetchTransactionByID = async (id: string): Promise<Transaction> => 
     throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
   }
 };
+
+export const fetchAllTransactions = async (): Promise<Transaction[]> => {
+  try {
+    const res = await api.get(`/transactions/user`);
+    return res.data;
+  } catch (e) {
+    const error = e as AxiosErrorResponse;
+    throw error.response ? { message: error.response.data.message, status: error.response.status } : { message: error.message, error: error.status };
+  }
+};
