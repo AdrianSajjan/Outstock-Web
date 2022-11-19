@@ -38,6 +38,7 @@ import {
   GenericErrorResponse,
 } from "@shared/interface";
 import { useLessThan576px } from "@shared/hooks";
+import NextLink from "next/link";
 
 const LoginForm: React.FC<ProfileFormProps> = ({ handleFormChange }) => {
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
@@ -270,9 +271,21 @@ const Profile = () => {
           </Box>
         </Stack>
         <VStack spacing="4" mt="8">
-          <Button isFullWidth>Edit Profile</Button>
-          <Button isFullWidth>My Orders</Button>
-          <Button isFullWidth>My Payments</Button>
+          <NextLink href="/profile" passHref>
+            <Button as="a" isFullWidth>
+              Edit Profile
+            </Button>
+          </NextLink>
+          <NextLink href="/orders" passHref>
+            <Button as="a" isFullWidth>
+              My Orders
+            </Button>
+          </NextLink>
+          <NextLink href="/payments" passHref>
+            <Button as="a" isFullWidth>
+              My Payments
+            </Button>
+          </NextLink>
         </VStack>
       </DrawerBody>
       <DrawerFooter>

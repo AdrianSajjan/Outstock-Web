@@ -17,10 +17,11 @@ import {
 } from "@chakra-ui/react";
 import { CheckoutProductCard } from "@components/Cards";
 import { PageHeader } from "@components/Layout";
-import { createOrder, createTransaction, fetchCart, fetchPaymentPublicKey, updateOrder } from "@shared/api";
+import { client, createOrder, createTransaction, fetchCart, fetchPaymentPublicKey, updateCartAsOrdered, updateOrder } from "@shared/api";
 import { containerPadding } from "@shared/constants";
 import { useCheckoutGrid } from "@shared/hooks";
 import {
+  Cart,
   CreateOrderFormState,
   CreateOrderState,
   CreateTransactionState,
@@ -33,6 +34,7 @@ import {
 } from "@shared/interface";
 import { useAppStore, useSessionStore } from "@shared/store";
 import { isFieldInvalid } from "@shared/utils";
+import { OrderValidationSchema } from "@shared/validations";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import { isBrowser } from "framer-motion";
@@ -62,6 +64,7 @@ const CheckoutPage: NextPage = () => {
   const createOrderMutation = useMutation<Order, GenericErrorResponse, CreateOrderState>({ mutationFn: createOrder });
   const updateOrderMutation = useMutation<Order, GenericErrorResponse, UpdateOrderState>({ mutationFn: updateOrder });
   const createTransactionMutation = useMutation<Transaction, GenericErrorResponse, CreateTransactionState>({ mutationFn: createTransaction });
+  const updateCartAsOrderedMutation = useMutation<Cart, GenericErrorResponse, string>({ mutationFn: updateCartAsOrdered });
 
   React.useEffect(() => {
     app.setCartSidebarOpen(false);
@@ -80,7 +83,7 @@ const CheckoutPage: NextPage = () => {
 
   const onSubmit = React.useCallback(
     (values: CreateOrderFormState) => {
-      if (!cart.data || !paymentKey.data || !user) return;
+      if (!cart.data || cart.data.items.length === 0 || !paymentKey.data || !user) return;
       createOrderMutation.mutate(
         { ...values, cart: cart.data._id, totalAmount: cart.data.totalPrice },
         {
@@ -126,15 +129,22 @@ const CheckoutPage: NextPage = () => {
                         { status: "placed", id: order._id },
                         {
                           onSuccess: () => {
-                            toast({ title: "Order placed", description: `Order with the id of ${order.oid} has been placed`, status: "success" });
-                            Router.push({
-                              pathname: "/order/success",
-                              query: { id: order.oid, invoice: transaction.paymentID, signature: razorpaySignature },
+                            updateCartAsOrderedMutation.mutate(cart.data._id, {
+                              onSuccess: () => {
+                                client.invalidateQueries({ queryKey: ["cart"] });
+                              },
+                              onSettled: () => {
+                                toast({ title: "Order placed", description: `Order with the id of ${order.oid} has been placed`, status: "success" });
+                                Router.push({
+                                  pathname: "/orders/success",
+                                  query: { id: order._id, oid: order.oid, invoice: transaction._id, payment: transaction.paymentID },
+                                });
+                              },
                             });
                           },
                           onError: (error) => {
                             toast({ title: "Coudn't place order", description: error, status: "error" });
-                            Router.push({ pathname: "/order/failed", query: { ...error } });
+                            Router.push({ pathname: "/orders/failed", query: { ...error } });
                           },
                         }
                       );
@@ -145,7 +155,7 @@ const CheckoutPage: NextPage = () => {
                         {
                           onSettled: () => {
                             toast({ title: "Coudn't place order", description: error, status: "error" });
-                            Router.push({ pathname: "/order/failed", query: { ...error } });
+                            Router.push({ pathname: "/orders/failed", query: { ...error } });
                           },
                         }
                       );
@@ -177,7 +187,7 @@ const CheckoutPage: NextPage = () => {
                         onSettled: () => {
                           toast({ title: "Coudn't place order", description: error.code + " " + error.description, status: "error" });
                           const { metadata, ...rest } = error;
-                          Router.push({ pathname: "/order/failed", query: { ...rest, ...metadata } });
+                          Router.push({ pathname: "/orders/failed", query: { ...rest, ...metadata } });
                         },
                       }
                     );
@@ -190,7 +200,7 @@ const CheckoutPage: NextPage = () => {
           },
           onError: (error) => {
             toast({ title: "Coudn't place order", description: error, status: "error" });
-            Router.push({ pathname: "/order/failed", query: { ...error } });
+            Router.push({ pathname: "/orders/failed", query: { ...error } });
           },
         }
       );
@@ -214,31 +224,31 @@ const CheckoutPage: NextPage = () => {
         <Container px={containerPadding} maxW="container.lg" pt={{ base: "12", lg: "16" }} pb="16">
           <Grid templateColumns={columns} gap="16">
             <GridItem colSpan={{ base: 1, md: 8 }}>
-              <Formik innerRef={formikRef} initialValues={initialValues} onSubmit={onSubmit}>
+              <Formik innerRef={formikRef} initialValues={initialValues} validationSchema={OrderValidationSchema} onSubmit={onSubmit}>
                 {(formik) => (
                   <Form>
-                    <FormControl isInvalid={isFieldInvalid(formik, "fullName")} isRequired>
+                    <FormControl isInvalid={isFieldInvalid(formik, "fullName")}>
                       <FormLabel textTransform="uppercase" htmlFor="full-name">
                         Full Name
                       </FormLabel>
                       <Field as={Input} name="fullName" id="full-name" variant="filled" placeholder="Enter your full name" />
                       <ErrorMessage name="fullName" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "emailAddress")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "emailAddress")}>
                       <FormLabel textTransform="uppercase" htmlFor="email">
                         Email
                       </FormLabel>
                       <Field as={Input} name="emailAddress" id="email" variant="filled" type="email" placeholder="Enter your email" />
                       <ErrorMessage name="emailAddress" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "phoneNumber")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "phoneNumber")}>
                       <FormLabel textTransform="uppercase" htmlFor="phone-number">
                         Phone Number
                       </FormLabel>
-                      <Field as={Input} name="phoneNumber" id="phone-number" variant="filled" placeholder="Enter your phone number" />
+                      <Field as={Input} name="phoneNumber" id="phone-number" type="number" variant="filled" placeholder="Enter your phone number" />
                       <ErrorMessage name="phoneNumber" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "addressLineOne")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "addressLineOne")}>
                       <FormLabel textTransform="uppercase" htmlFor="address-1">
                         Address Line 1
                       </FormLabel>
@@ -247,33 +257,33 @@ const CheckoutPage: NextPage = () => {
                     </FormControl>
                     <FormControl mt="6" isInvalid={isFieldInvalid(formik, "addressLineTwo")}>
                       <FormLabel textTransform="uppercase" htmlFor="address-2">
-                        Address Line 2
+                        Address Line 2 - Optional
                       </FormLabel>
                       <Field as={Input} name="addressLineTwo" id="address-2" variant="filled" placeholder="Enter your address line 2" />
                       <ErrorMessage name="addressLineTwo" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "pinCode")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "pinCode")}>
                       <FormLabel textTransform="uppercase" htmlFor="pin-code">
                         PIN Code
                       </FormLabel>
                       <Field as={Input} name="pinCode" id="pin-code" variant="filled" type="number" placeholder="Enter your PIN code" />
                       <ErrorMessage name="pinCode" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "cityOrDistrict")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "cityOrDistrict")}>
                       <FormLabel textTransform="uppercase" htmlFor="city">
                         City or District
                       </FormLabel>
                       <Field as={Input} name="cityOrDistrict" id="city" variant="filled" placeholder="Enter your city or district" />
                       <ErrorMessage name="cityOrDistrict" component={FormErrorMessage} />
                     </FormControl>
-                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "state")} isRequired>
+                    <FormControl mt="6" isInvalid={isFieldInvalid(formik, "state")}>
                       <FormLabel textTransform="uppercase" htmlFor="state">
                         State
                       </FormLabel>
                       <Field as={Input} name="state" id="state" variant="filled" placeholder="Enter your state" />
                       <ErrorMessage name="state" component={FormErrorMessage} />
                     </FormControl>
-                    <Button isFullWidth type="submit" bg="black" color="white" colorScheme="blackAlpha" mt="10">
+                    <Button isFullWidth disabled={!cart.data?.items.length} type="submit" bg="black" color="white" colorScheme="blackAlpha" mt="10">
                       Checkout
                     </Button>
                   </Form>
@@ -282,11 +292,15 @@ const CheckoutPage: NextPage = () => {
             </GridItem>
             <GridItem colSpan={{ base: 1, md: 6 }}>
               <SkeletonText isLoaded={cart.isFetched} noOfLines={6} spacing="4" skeletonHeight="4">
-                <VStack spacing="6" alignItems="start">
-                  {cart.data?.items.map((item) => (
-                    <CheckoutProductCard key={item._id} {...item} />
-                  ))}
-                </VStack>
+                {cart.data?.items.length ? (
+                  <VStack spacing="6" alignItems="start">
+                    {cart.data?.items.map((item) => (
+                      <CheckoutProductCard key={item._id} {...item} />
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text fontSize="lg">Looks like your cart is empty. Add some items to your cart and come back here. Enjoy shopping.</Text>
+                )}
               </SkeletonText>
               <Divider mb="4" mt="8" />
               <SkeletonText isLoaded={cart.isFetched} noOfLines={1} skeletonHeight="4">

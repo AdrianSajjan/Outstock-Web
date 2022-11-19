@@ -57,14 +57,12 @@ api.interceptors.response.use(
 
       if (apiStore.getState().pendingRequests.length > 0) {
         console.log("Retrying pending requests");
-        apiStore.getState().pendingRequests.map((request) => console.log(request));
-        Promise.allSettled(apiStore.getState().pendingRequests);
+        await Promise.allSettled(apiStore.getState().pendingRequests);
       }
 
       apiStore.setState({ isAuthRefreshing: false, pendingRequests: [] });
 
       const isFormData = original.data instanceof FormData;
-
       return api({
         ...original,
         headers: {
@@ -88,7 +86,7 @@ api.interceptors.response.use(
           }),
         ],
       }));
-      Promise.reject("Request will be parsed after auth is refreshed");
+      Promise.reject({ ...error, response: { ...error.response, data: { ...error.response.data, message: "The request is being delayed" } } });
     }
   }
 );

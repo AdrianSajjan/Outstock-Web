@@ -68,6 +68,7 @@ export interface Order {
 }
 
 export interface Transaction {
+  _id: string;
   user: User;
   order: Order;
   paymentID: string;
@@ -92,7 +93,7 @@ export interface Transaction {
     reason: string;
   };
   phoneNumber: string;
-  type: string;
+  method: string;
   createdAt: Date;
   updatedAt: Date;
 }
