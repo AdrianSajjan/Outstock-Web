@@ -25,7 +25,7 @@ const OrdersPage = () => {
       <PageHeader title="My Orders" pathname={router.pathname} query={router.query} />
       <Box as="section" bg="white">
         <Container px={containerPadding} maxW="container.xl" py="12">
-          <SkeletonText isLoaded={orders.isFetched} noOfLines={8} lineHeight="4" skeletonHeight="4" w="full">
+          <SkeletonText isLoaded={orders.isFetched} noOfLines={8} skeletonHeight="4" w="full">
             <VStack spacing="8">
               {orders.data?.map((order) => (
                 <OrderCard key={order._id} order={order} px={{ base: "0", md: "16" }} />

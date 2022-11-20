@@ -67,7 +67,7 @@ const OrderSuccessPage = () => {
               </Text>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2}>
               <Stack direction={isLessThan768px ? "column" : "row"} spacing="0" gap="4" w="full" wrap="wrap" justify="space-between">
                 <Stack>
                   <Text color="gray.500">Order Date</Text>
@@ -90,7 +90,7 @@ const OrderSuccessPage = () => {
               </Stack>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={6} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={6}>
               <Box w="full">
                 {order.data?.products.map((item) => (
                   <OrderProductCard item={item} />
@@ -98,7 +98,7 @@ const OrderSuccessPage = () => {
               </Box>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2}>
               <HStack justify="space-between" w="full" py="2">
                 <Text fontSize="lg" fontWeight="semibold">
                   Total
@@ -107,7 +107,7 @@ const OrderSuccessPage = () => {
               </HStack>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={4} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={4}>
               <Box pb="4">
                 <Text>
                   Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint vel maiores, nostrum quis pariatur dignissimos? Aperiam ducimus

@@ -69,7 +69,7 @@ const OrderFailedPage = () => {
               </Flex>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2}>
               <Stack spacing="4" direction={isLessThan768px ? "column" : "row"} align="flex-start" justify="space-between" w="full">
                 <Stack spacing="0">
                   <Text color="gray.500">Order Date</Text>
@@ -88,7 +88,7 @@ const OrderFailedPage = () => {
               </Stack>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={6} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={6}>
               <Box w="full">
                 {order.data?.products.map((item) => (
                   <OrderProductCard item={item} />
@@ -96,7 +96,7 @@ const OrderFailedPage = () => {
               </Box>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={2}>
               <HStack justify="space-between" w="full" py="2">
                 <Text fontSize="lg" fontWeight="semibold">
                   Total
@@ -105,7 +105,7 @@ const OrderFailedPage = () => {
               </HStack>
             </SkeletonText>
             <Divider />
-            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={4} lineHeight="2">
+            <SkeletonText w="full" isLoaded={isOrderLoaded} skeletonHeight="4" noOfLines={4}>
               <Box pb="4">
                 <Text>
                   Your order coudn't be completed due to some reason. If any money is deducted from your account it will be refunded within 2-3

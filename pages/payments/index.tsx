@@ -26,7 +26,7 @@ const TransactionsPage = () => {
       <PageHeader title="My Payments" pathname={router.pathname} query={router.query} />
       <Box as="section" bg="white">
         <Container px={containerPadding} maxW="container.xl" py="12">
-          <SkeletonText isLoaded={transactions.isFetched} noOfLines={8} lineHeight="4" skeletonHeight="4" w="full">
+          <SkeletonText isLoaded={transactions.isFetched} noOfLines={8} skeletonHeight="4" w="full">
             <VStack align="start" spacing="8">
               {transactions.data?.map((transaction) => (
                 <React.Fragment key={transaction._id}>
