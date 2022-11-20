@@ -6,6 +6,8 @@ export type AuthenticateSessionSuccess = User;
 
 export type FetchProductSuccess = Product;
 
+export type SearchProductsSuccess = Array<Product>;
+
 export type FetchCartSuccess = Cart;
 
 export type AxiosErrorResponse = AxiosError<ErrorResponse>;

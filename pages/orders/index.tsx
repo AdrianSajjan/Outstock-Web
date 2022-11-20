@@ -28,7 +28,7 @@ const OrdersPage = () => {
           <SkeletonText isLoaded={orders.isFetched} noOfLines={8} lineHeight="4" skeletonHeight="4" w="full">
             <VStack spacing="8">
               {orders.data?.map((order) => (
-                <OrderCard order={order} px={{ base: "0", md: "16" }} />
+                <OrderCard key={order._id} order={order} px={{ base: "0", md: "16" }} />
               ))}
             </VStack>
           </SkeletonText>

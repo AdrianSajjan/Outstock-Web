@@ -7,6 +7,8 @@ import {
   DrawerCloseButton,
   DrawerContent,
   DrawerOverlay,
+  FormControl,
+  FormErrorMessage,
   HStack,
   Input,
   InputGroup,
@@ -15,6 +17,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { HiOutlineSearch } from "react-icons/hi";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 interface Props {
   isOpen: boolean;
@@ -22,6 +26,19 @@ interface Props {
 }
 
 const SearchSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
+  const router = useRouter();
+
+  const [error, setError] = React.useState("");
+  const [searchText, setSearchText] = React.useState("");
+
+  const handleSearchTextChange: React.ChangeEventHandler<HTMLInputElement> = (e) => setSearchText(e.target.value);
+
+  const handleSearch = () => {
+    if (searchText.length < 4) return setError("Please provide atleast 4 letters");
+    setError("");
+    router.push({ pathname: "/search", query: { key: searchText } });
+  };
+
   return (
     <Drawer isOpen={isOpen} onClose={handleClose} size="sm">
       <DrawerOverlay />
@@ -36,13 +53,16 @@ const SearchSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
           <Select variant="filled">
             <option value="all">All Categories</option>
           </Select>
-          <InputGroup mt="4">
-            <Input variant="filled" placeholder="What are you looking for?" />
-            <InputRightElement color="gray.500">
-              <HiOutlineSearch />
-            </InputRightElement>
-          </InputGroup>
-          <Button isFullWidth mt="6" colorScheme="blackAlpha" bg="black">
+          <FormControl isInvalid={!!error}>
+            <InputGroup mt="4">
+              <Input onChange={handleSearchTextChange} value={searchText} variant="filled" placeholder="What are you looking for?" />
+              <InputRightElement color="gray.500">
+                <HiOutlineSearch />
+              </InputRightElement>
+            </InputGroup>
+            <FormErrorMessage>{error}</FormErrorMessage>
+          </FormControl>
+          <Button onClick={handleSearch} isFullWidth mt="6" colorScheme="blackAlpha" bg="black">
             Search
           </Button>
           <Divider mt="6" />

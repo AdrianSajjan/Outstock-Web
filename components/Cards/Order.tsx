@@ -53,12 +53,10 @@ const OrderCard: NextPage<OrderCardProps> = ({ order, px = "0" }) => {
           <Text color="gray.500">Order Status</Text>
           <Text textTransform="capitalize">{order.status}</Text>
         </Stack>
-        <Stack>
-          <Button textTransform="capitalize">See Order Details</Button>
-        </Stack>
+        <Stack>{/* <Button textTransform="capitalize">See Order Details</Button> */}</Stack>
       </Stack>
-      {order.products.map((item) => (
-        <OrderProductCard item={item} />
+      {order.products.map((item, index) => (
+        <OrderProductCard key={index} item={item} />
       ))}
       <HStack px={px} justify="space-between" w="full" py="2">
         <Text fontSize="lg" fontWeight="semibold">

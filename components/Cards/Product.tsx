@@ -17,7 +17,7 @@ const ProductCard: NextPage<ProductCardProps> = ({ images, name, price, currency
         <Box w="full" h="sm" position="relative">
           <Image src={images[0]} objectFit="cover" layout="fill" />
         </Box>
-        <Text fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
+        <Text h="7" fontSize="lg" fontWeight="medium" color="gray.500" mt="4">
           {name}
         </Text>
         <HStack alignItems="center" justifyContent="space-between" mt="1">

@@ -21,6 +21,8 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 
   const isLessThan1366px = useLessThan1366px();
 
+  const px = { base: "4", md: "12" };
+
   return (
     <>
       <Head>
@@ -34,17 +36,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
               <Box minH="lg" h="full" w="full" position="relative">
                 <Image layout="fill" src={hero.main.image} priority objectFit="cover" />
               </Box>
-              <Box
-                position="absolute"
-                top="50%"
-                left="50%"
-                w="72"
-                transform="translate(-50%, -50%)"
-                bg="white"
-                py="4"
-                px={{ base: "4", md: "12" }}
-                borderRadius="sm"
-              >
+              <Box position="absolute" top="50%" left="50%" w="72" transform="translate(-50%, -50%)" bg="white" py="4" px={px} borderRadius="sm">
                 <Text textTransform="uppercase" fontWeight="semibold" fontSize="md" align="center" color="gray.600">
                   {hero.main.caption}
                 </Text>
