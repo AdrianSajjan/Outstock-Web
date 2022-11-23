@@ -123,3 +123,9 @@ export interface RazorpayPaymentFailed {
     step: string; //"payment_authorization";
   };
 }
+
+export interface AddReviewState {
+  product: string;
+  rating: number;
+  comment?: string;
+}

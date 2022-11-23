@@ -21,7 +21,17 @@ export interface Product {
   currency: string;
   gender: Array<string>;
   category: Category;
+  reviews?: Array<Review>;
   subcategory: Array<Category>;
+}
+
+export interface Review {
+  user: Pick<User, "_id" | "firstName" | "lastName">;
+  rating: number;
+  comment?: string;
+  product: Product;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Category {

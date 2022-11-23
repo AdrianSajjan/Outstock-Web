@@ -8,7 +8,7 @@ import { FaTape } from "react-icons/fa";
 import { useAppStore, useSessionStore } from "@shared/store";
 import { PageHeader } from "@components/Layout";
 import { StarRating } from "@components/Rating";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { GetServerSideProps, NextPage } from "next";
 import { client, fetchProductBySlug, addToCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
 import { acceptedCategoryRoutes, containerPadding } from "@shared/constants";
@@ -32,6 +32,7 @@ import {
 import { HiChevronDown, HiChevronUp, HiOutlineChatAlt, HiOutlineHeart, HiOutlineMail, HiOutlineRefresh, HiOutlineTruck } from "react-icons/hi";
 import { useLessThan576px, useLessThan976px } from "@shared/hooks";
 import { ReviewModal } from "@components/Modals";
+import moment from "moment";
 
 const Span = chakra("span");
 
@@ -69,10 +70,17 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
   const handleIncreaseIndex = () => setActiveIndex((idx) => (idx === data.images.length - 1 ? 0 : idx + 1));
   const handleDecreaseIndex = () => setActiveIndex((idx) => (idx === 0 ? data.images.length - 1 : idx - 1));
 
-  const handleModalOpen = () => setModalOpen(true);
+  const handleModalOpen = () => {
+    if (isAuthenticated) return setModalOpen(true);
+    setProfileSidebarOpen(true);
+    toast({ title: "Login or Register", status: "info", description: "Please login or register to add reviews" });
+  };
+
   const handleModalClose = () => setModalOpen(false);
 
   const cart = client.getQueryData<Cart>(["cart"]);
+
+  const product = useQuery({ queryKey: ["product", data.slug], queryFn: () => fetchProductBySlug(data.slug), initialData: data });
 
   const addToCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, UpdateCartState>({ mutationFn: addToCart });
 
@@ -100,14 +108,14 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
       <Head>
         <title>{_.upperFirst(category)}&apos;s Shopping</title>
       </Head>
-      <PageHeader pathname={router.pathname} query={router.query} title={data.name} />
+      <PageHeader pathname={router.pathname} query={router.query} title={product.data.name} />
       <Box as="section" bg="white">
         <Box as="div" bg="gray.100" py="2">
           <Container maxW="container.2xl">
-            <ReviewModal isOpen={isModalOpen} onClose={handleModalClose} />
+            <ReviewModal product={product.data} isOpen={isModalOpen} onClose={handleModalClose} />
             <HStack justifyContent="space-between">
               <HStack spacing="4">
-                <StarRating total={5} rating={data.averageRating || 0} size={16} />
+                <StarRating total={5} rating={product.data.averageRating || 0} size={16} />
                 <Text>2 Reviews</Text>
               </HStack>
               <HStack spacing="4" display={isLessThan576px ? "none" : "flex"}>
@@ -121,7 +129,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
             </HStack>
           </Container>
         </Box>
-        <Container maxW="container.2xl" padding={containerPadding} py="12">
+        <Container maxW="container.2xl" px={containerPadding} py="12">
           <SimpleGrid columns={isLessThan976px ? 1 : 2} spacing={12}>
             <Stack direction={isLessThan576px ? "column-reverse" : "row"} spacing={4} alignItems="start">
               <Flex direction={isLessThan576px ? "row" : "column"} w={isLessThan576px ? "full" : "unset"} gap={4}>
@@ -131,18 +139,18 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                     <IconButton aria-label="after" icon={<HiChevronDown />} onClick={handleIncreaseIndex} />
                   </HStack>
                 ) : null}
-                {data.images.map((image, index) => {
+                {product.data.images.map((image, index) => {
                   const handleClick = () => setActiveIndex(index);
                   const border = index === activeIndex ? "2px" : "";
                   return (
                     <Thumbnail onClick={handleClick} key={image + index} border={border}>
-                      <Image layout="fill" objectFit="cover" src={data.images[index]} />
+                      <Image layout="fill" objectFit="cover" src={product.data.images[index]} />
                     </Thumbnail>
                   );
                 })}
               </Flex>
               <Box w="full" maxW="lg" h="full" minH="md" maxH="2xl" position="relative">
-                <Image layout="fill" objectFit="cover" src={data.images[activeIndex]} quality={100} />
+                <Image layout="fill" objectFit="cover" src={product.data.images[activeIndex]} quality={100} />
               </Box>
             </Stack>
             <Box>
@@ -172,7 +180,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
               <Divider mt="8" />
               <Flex alignItems="center" flexWrap="wrap" py="8" gap={isLessThan576px ? 4 : 8}>
                 <Text fontWeight="bold" fontSize="2xl">
-                  {data.currency}. {data.price.toFixed(2)}
+                  {product.data.currency}. {product.data.price.toFixed(2)}
                 </Text>
                 <Flex gap={4}>
                   <Button bg="black" onClick={handleAddToCart} disabled={addToCartMutation.isLoading} color="white" px="10" colorScheme="blackAlpha">
@@ -252,37 +260,23 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                   </ReviewButton>
                 </Flex>
                 <VStack mt="12" alignItems="stretch" spacing={12}>
-                  <Box>
-                    <HStack justifyContent="space-between">
-                      <Text fontSize="lg" fontWeight="semibold">
-                        John Doe
-                      </Text>
-                      <HStack spacing={6}>
-                        <Text color="gray.500">3 months ago</Text>
-                        <StarRating rating={5} total={5} size={12} />
+                  {product.data.reviews?.map((review) => (
+                    <Box>
+                      <HStack justifyContent="space-between">
+                        <Text fontSize="lg" fontWeight="semibold">
+                          {review.user.firstName} {review.user.lastName}
+                        </Text>
+                        <HStack spacing={6}>
+                          <Text color="gray.500">{moment(review.updatedAt).fromNow()}</Text>
+                          <StarRating rating={review.rating} total={5} size={12} />
+                        </HStack>
                       </HStack>
-                    </HStack>
-                    <Text mt="4" color="gray.500">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Error molestias aliquid disticiom blanditiis suscipit unde, possimus
-                      deleniti vero consequatur corporis a id laudantium ad quid consectetur? Fuga dolore architecto velit.
-                    </Text>
-                  </Box>
-                  <Box>
-                    <HStack justifyContent="space-between">
-                      <Text fontSize="lg" fontWeight="semibold">
-                        Jane Doe
+                      <Text mt="4" color="gray.500">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Error molestias aliquid disticiom blanditiis suscipit unde, possimus
+                        deleniti vero consequatur corporis a id laudantium ad quid consectetur? Fuga dolore architecto velit.
                       </Text>
-                      <HStack spacing={6}>
-                        <Text color="gray.500">4 months ago</Text>
-                        <StarRating rating={5} total={5} size={12} />
-                      </HStack>
-                    </HStack>
-                    <Text mt="4" color="gray.500">
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos dolorum maxime recusandae cupiditate iusto incidunt quaerat
-                      corporis quo ducimus quis dolores adipisci nihil, ratione ullam, eum accusantium ex totam voluptatibus? Mollitia commodi
-                      voluptate nesciunt vero.
-                    </Text>
-                  </Box>
+                    </Box>
+                  ))}
                 </VStack>
               </Box>
               <Divider />

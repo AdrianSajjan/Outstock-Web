@@ -11,26 +11,51 @@ import {
   ModalHeader,
   ModalOverlay,
   Textarea,
+  useToast,
 } from "@chakra-ui/react";
 import { StarRating } from "@components/Rating";
 import * as React from "react";
 import { NextPage } from "next";
+import { useMutation } from "@tanstack/react-query";
+import { addReview } from "@shared/api";
+import { AddReviewState, GenericErrorResponse, Product } from "@shared/interface";
+import queryClient from "@shared/api/client";
 
 interface ReviewModalProps {
+  product: Product;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ReviewModal: NextPage<ReviewModalProps> = ({ isOpen, onClose }) => {
+const ReviewModal: NextPage<ReviewModalProps> = ({ isOpen, onClose, product }) => {
   const [error, setError] = React.useState("");
   const [rating, setRating] = React.useState(0);
   const [comment, setComment] = React.useState("");
 
-  const handleComment: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => setComment(e.target.value);
+  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
+
+  const handleComment: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    setError("");
+    setComment(e.target.value);
+  };
+
+  const addReviewMutation = useMutation<void, GenericErrorResponse, AddReviewState>({ mutationFn: addReview });
 
   const handleSubmit = () => {
-    if (rating === 0) setError("Please provide a rating");
-    else setError("");
+    if (rating === 0) return setError("Please provide a rating");
+    setError("");
+    addReviewMutation.mutate(
+      { product: product._id, rating, comment },
+      {
+        onSuccess: () => {
+          toast({ title: "Review Added", description: `Review has been submitted for product ${product.name}`, status: "success" });
+          queryClient.invalidateQueries(["product", product.slug]);
+        },
+        onError: (error) => {
+          toast({ title: "Coudn't submit review", description: error.message, status: "error" });
+        },
+      }
+    );
   };
 
   return (
@@ -51,11 +76,11 @@ const ReviewModal: NextPage<ReviewModalProps> = ({ isOpen, onClose }) => {
           </FormControl>
         </ModalBody>
         <ModalFooter>
-          <Button mr={3} onClick={handleSubmit}>
+          <Button mr={3} onClick={handleSubmit} isLoading={addReviewMutation.isLoading}>
             Submit Review
           </Button>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            Close
           </Button>
         </ModalFooter>
       </ModalContent>

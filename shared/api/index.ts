@@ -3,6 +3,7 @@ export * from "./authentication";
 export * from "./products";
 export * from "./user";
 export * from "./orders";
+export * from "./reviews";
 export * from "./transaction";
 
 export { default as api } from "./api";
