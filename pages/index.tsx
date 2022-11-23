@@ -5,12 +5,12 @@ import Image from "next/image";
 import NextLink from "next/link";
 import { HeroSmallCard } from "@shared/pages";
 import { ProductCard } from "@components/Cards";
+import { containerPadding } from "@shared/constants";
 import type { GetServerSideProps, NextPage } from "next";
 import { fetchHomePageData, fetchProducts } from "@shared/api";
 import { HiOutlineTruck, HiOutlineRefresh, HiOutlineSupport } from "react-icons/hi";
 import { Box, Button, Container, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import { AxiosErrorResponse, HomePageProps, HomePageServerSideProps } from "@shared/interface";
-import { containerPadding } from "@shared/constants";
 import { useLessThan1366px, use4ColumnResponseGrid, useHeroResponseGrid, use2ColumnResponseGrid, use3ColumnResponseGrid } from "@shared/hooks";
 
 const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, women }) => {
@@ -177,8 +177,8 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async () => {
   const promise = {
     site: fetchHomePageData(),
-    men: fetchProducts({ category: "men", page: 1 }),
-    women: fetchProducts({ category: "women", page: 1 }),
+    men: fetchProducts({ category: "clothing", subcategory: "womens-clothing", page: 1 }),
+    women: fetchProducts({ category: "clothing", subcategory: "womens-clothing", page: 1 }),
   };
   try {
     const data: any = _.zipObject(_.keys(promise), await Promise.all(_.values(promise)));

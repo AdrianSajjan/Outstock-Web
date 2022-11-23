@@ -60,6 +60,7 @@ export interface RemoveItemFromCartState {
 
 export interface FetchProductState extends Partial<FilterState> {
   category: string;
+  subcategory: string;
   page: number;
 }
 

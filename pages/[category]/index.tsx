@@ -1,16 +1,16 @@
-import { Box, Button, Container, Flex, Grid, GridItem, SkeletonText, Spinner, useMediaQuery } from "@chakra-ui/react";
-import { ProductCard } from "@components/Cards";
-import { ProductFilterAndSort } from "@components/Filter";
 import _ from "lodash";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useFilter, use4ColumnResponseGrid } from "@shared/hooks";
 import { fetchProducts } from "@shared/api";
 import { PageHeader } from "@components/Layout";
+import { ProductCard } from "@components/Cards";
 import { GetServerSideProps, NextPage } from "next";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { ProductFilterAndSort } from "@components/Filter";
+import { useFilter, use4ColumnResponseGrid } from "@shared/hooks";
 import { ProductPageProps, ProductPageServerSideProps } from "@shared/interface";
-import { acceptedCategoryRoutes, containerPadding, perRequestProductLimit } from "@shared/constants";
+import { Box, Button, Container, Grid, GridItem, SkeletonText } from "@chakra-ui/react";
+import { acceptedCategoryRoutes, containerPadding, mapSlugToCategory, mapSlugToSubcategory, perRequestProductLimit } from "@shared/constants";
 
 const Products: NextPage<ProductPageProps> = ({ data }) => {
   const router = useRouter();
@@ -22,7 +22,8 @@ const Products: NextPage<ProductPageProps> = ({ data }) => {
 
   const query = useInfiniteQuery({
     queryKey: ["products", category, filter],
-    queryFn: ({ pageParam = 1 }) => fetchProducts({ category, page: pageParam, ...filter }),
+    queryFn: ({ pageParam = 1 }) =>
+      fetchProducts({ category: mapSlugToCategory[category], subcategory: mapSlugToSubcategory[category], page: pageParam, ...filter }),
     getNextPageParam: (lastPage, pages) => {
       if (pages.length * perRequestProductLimit >= lastPage.total) return false;
       return lastPage.nextPage;
@@ -76,7 +77,7 @@ export const getServerSideProps: GetServerSideProps<ProductPageServerSideProps> 
       notFound: true,
     };
 
-  const data = await fetchProducts({ category, page: 1 });
+  const data = await fetchProducts({ category: mapSlugToCategory[category], subcategory: mapSlugToSubcategory[category], page: 1 });
 
   return {
     props: {
