@@ -57,7 +57,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
         { id: cart.data._id, product },
         {
           onSuccess: () => {
-            toast({ title: "Success", description: "Product removed to cart", status: "success" });
+            toast({ title: "Success", description: "Product removed from cart", status: "info" });
             client.invalidateQueries({ queryKey: ["cart"] });
           },
           onError: (error) => {
@@ -73,7 +73,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
         { id: cart.data._id, item },
         {
           onSuccess: () => {
-            toast({ title: "Success", description: "Product removed to cart", status: "success" });
+            toast({ title: "Success", description: "Product removed from cart", status: "info" });
             client.invalidateQueries({ queryKey: ["cart"] });
           },
           onError: (error) => {

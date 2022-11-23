@@ -80,7 +80,7 @@ const AppBar: NextPage = () => {
               <NextLink href="/men" passHref>
                 <Link>Men</Link>
               </NextLink>
-              <NextLink href="/men" passHref>
+              <NextLink href="/accessories" passHref>
                 <Link>Accessories</Link>
               </NextLink>
             </Box>

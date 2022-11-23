@@ -21,7 +21,7 @@ export interface Product {
   currency: string;
   gender: Array<string>;
   category: Category;
-  subcategory: Category;
+  subcategory: Array<Category>;
 }
 
 export interface Category {

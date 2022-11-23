@@ -32,6 +32,8 @@ const SearchPage: NextPage = () => {
 
   const results = useQuery({ queryKey: ["search", searchKey], enabled: !!searchKey, queryFn: () => searchProducts(searchKey) });
 
+  console.log(results.data);
+
   return (
     <>
       <Head>

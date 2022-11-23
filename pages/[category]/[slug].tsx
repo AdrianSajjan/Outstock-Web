@@ -31,8 +31,17 @@ import {
 } from "@chakra-ui/react";
 import { HiChevronDown, HiChevronUp, HiOutlineChatAlt, HiOutlineHeart, HiOutlineMail, HiOutlineRefresh, HiOutlineTruck } from "react-icons/hi";
 import { useLessThan576px, useLessThan976px } from "@shared/hooks";
+import { ReviewModal } from "@components/Modals";
 
 const Span = chakra("span");
+
+const ReviewButton = chakra(Button, {
+  baseStyle: {
+    p: 0,
+    textTransform: "none",
+    color: "gray.500",
+  },
+});
 
 const Thumbnail = chakra("button", {
   baseStyle: {
@@ -55,9 +64,13 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
   const category = router.query.category as string;
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const handleIncreaseIndex = () => setActiveIndex((idx) => (idx === data.images.length - 1 ? 0 : idx + 1));
   const handleDecreaseIndex = () => setActiveIndex((idx) => (idx === 0 ? data.images.length - 1 : idx - 1));
+
+  const handleModalOpen = () => setModalOpen(true);
+  const handleModalClose = () => setModalOpen(false);
 
   const cart = client.getQueryData<Cart>(["cart"]);
 
@@ -91,6 +104,7 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
       <Box as="section" bg="white">
         <Box as="div" bg="gray.100" py="2">
           <Container maxW="container.2xl">
+            <ReviewModal isOpen={isModalOpen} onClose={handleModalClose} />
             <HStack justifyContent="space-between">
               <HStack spacing="4">
                 <StarRating total={5} rating={data.averageRating || 0} size={16} />
@@ -233,17 +247,9 @@ const Details: NextPage<DetailsPageProps> = ({ data }) => {
                     <StarRating rating={4} total={5} size={16} />
                     <Text>2 Reviews</Text>
                   </HStack>
-                  <Button
-                    p={0}
-                    variant="ghost"
-                    textColor="gray.500"
-                    textTransform="none"
-                    fontWeight="medium"
-                    leftIcon={<HiOutlineChatAlt size={24} />}
-                    iconSpacing={4}
-                  >
+                  <ReviewButton variant="ghost" onClick={handleModalOpen} leftIcon={<HiOutlineChatAlt size={24} />}>
                     Write a review
-                  </Button>
+                  </ReviewButton>
                 </Flex>
                 <VStack mt="12" alignItems="stretch" spacing={12}>
                   <Box>

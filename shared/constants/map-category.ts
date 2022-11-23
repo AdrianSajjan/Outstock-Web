@@ -8,3 +8,8 @@ export const mapSlugToSubcategory: Record<string, string> = {
   men: "mens-clothing",
   women: "womens-clothing",
 };
+
+export const mapSlugToRoute: Record<string, string> = {
+  "mens-clothing": "men",
+  "womens-clothing": "women",
+};
