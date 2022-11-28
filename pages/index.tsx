@@ -177,7 +177,7 @@ const Home: NextPage<HomePageProps> = ({ site: { banner, hero, blog }, men, wome
 export const getServerSideProps: GetServerSideProps<HomePageServerSideProps> = async () => {
   const promise = {
     site: fetchHomePageData(),
-    men: fetchProducts({ category: "clothing", subcategory: "womens-clothing", page: 1 }),
+    men: fetchProducts({ category: "clothing", subcategory: "mens-clothing", page: 1 }),
     women: fetchProducts({ category: "clothing", subcategory: "womens-clothing", page: 1 }),
   };
   try {
