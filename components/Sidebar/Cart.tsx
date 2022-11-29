@@ -10,15 +10,12 @@ import {
   DrawerOverlay,
   HStack,
   Text,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useSessionStore } from "@shared/store";
 import { CartProductCard } from "@components/Cards";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { addToCart, client, fetchCart, removeItemFromCart, removeProductFromCart } from "@shared/api";
-import { FetchCartSuccess, GenericErrorResponse, Product, RemoveItemFromCartState, UpdateCartState } from "@shared/interface";
+import { useCart } from "@shared/hooks";
 
 interface Props {
   isOpen: boolean;
@@ -27,61 +24,8 @@ interface Props {
 
 const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
   const { isAuthenticated } = useSessionStore();
-  const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
-  const cart = useQuery({ queryKey: ["cart"], queryFn: fetchCart, enabled: isAuthenticated });
-
-  const addToCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, UpdateCartState>({ mutationFn: addToCart });
-  const removeProductFromCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, UpdateCartState>({ mutationFn: removeProductFromCart });
-  const removeItemFromCartMutation = useMutation<FetchCartSuccess, GenericErrorResponse, RemoveItemFromCartState>({ mutationFn: removeItemFromCart });
-
-  const handleAdd = (product: Product) => {
-    if (cart.data)
-      return addToCartMutation.mutate(
-        { id: cart.data._id, product },
-        {
-          onSuccess: () => {
-            toast({ title: "Success", description: "Product added to cart", status: "success" });
-            client.invalidateQueries({ queryKey: ["cart"] });
-          },
-          onError: (error) => {
-            toast({ title: "Unable to add to Cart", description: error.message, status: "error" });
-          },
-        }
-      );
-  };
-
-  const handleRemoveProduct = (product: Product) => {
-    if (cart.data)
-      return removeProductFromCartMutation.mutate(
-        { id: cart.data._id, product },
-        {
-          onSuccess: () => {
-            toast({ title: "Success", description: "Product removed from cart", status: "info" });
-            client.invalidateQueries({ queryKey: ["cart"] });
-          },
-          onError: (error) => {
-            toast({ title: "Unable to remove from Cart", description: error.message, status: "error" });
-          },
-        }
-      );
-  };
-
-  const handleRemoveItem = (item: string) => {
-    if (cart.data)
-      return removeItemFromCartMutation.mutate(
-        { id: cart.data._id, item },
-        {
-          onSuccess: () => {
-            toast({ title: "Success", description: "Product removed from cart", status: "info" });
-            client.invalidateQueries({ queryKey: ["cart"] });
-          },
-          onError: (error) => {
-            toast({ title: "Unable to remove from Cart", description: error.message, status: "error" });
-          },
-        }
-      );
-  };
+  const { cart, handleAdd, handleRemoveItem, handleRemoveProduct } = useCart(isAuthenticated);
 
   return (
     <Drawer isOpen={isOpen} onClose={handleClose} size="sm">
@@ -107,7 +51,7 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
           <HStack justifyContent="space-between" alignSelf="stretch">
             <Text fontSize="lg">Total</Text>
             <Text fontSize="lg" fontWeight="medium">
-              ₹ {cart.data?.totalPrice || 0}
+              ₹ {cart.data?.totalPrice.toLocaleString() || 0}
             </Text>
           </HStack>
           <NextLink href="/checkout" passHref>
@@ -115,9 +59,11 @@ const CartSidebar: React.FC<Props> = ({ handleClose, isOpen }) => {
               Check Out
             </Button>
           </NextLink>
-          <Button isFullWidth mt="2">
-            View Cart
-          </Button>
+          <NextLink href="/cart" passHref>
+            <Button isFullWidth mt="2">
+              View Cart
+            </Button>
+          </NextLink>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

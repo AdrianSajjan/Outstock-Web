@@ -19,7 +19,7 @@ import { CheckoutProductCard } from "@components/Cards";
 import { PageHeader } from "@components/Layout";
 import { client, createOrder, createTransaction, emptyCart, fetchCart, fetchPaymentPublicKey, updateOrder } from "@shared/api";
 import { containerPadding } from "@shared/constants";
-import { useCheckoutGrid } from "@shared/hooks";
+import { useAuthenticationStore, useCheckoutGrid } from "@shared/hooks";
 import {
   Cart,
   CreateOrderFormState,
@@ -32,12 +32,11 @@ import {
   Transaction,
   UpdateOrderState,
 } from "@shared/interface";
-import { useAppStore, useSessionStore } from "@shared/store";
+import { useAppStore } from "@shared/store";
 import { isFieldInvalid } from "@shared/utils";
 import { OrderValidationSchema } from "@shared/validations";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
-import { isBrowser } from "framer-motion";
 import { NextPage } from "next";
 import Head from "next/head";
 import Router, { useRouter } from "next/router";
@@ -53,7 +52,7 @@ const CheckoutPage: NextPage = () => {
 
   const toast = useToast({ variant: "left-accent", position: "top", isClosable: true });
 
-  const { isAuthenticated, isLoading, user } = useSessionStore();
+  const { isAuthenticated, isLoading, user } = useAuthenticationStore();
 
   const columns = useCheckoutGrid();
 
@@ -65,10 +64,6 @@ const CheckoutPage: NextPage = () => {
   const updateOrderMutation = useMutation<Order, GenericErrorResponse, UpdateOrderState>({ mutationFn: updateOrder });
   const createTransactionMutation = useMutation<Transaction, GenericErrorResponse, CreateTransactionState>({ mutationFn: createTransaction });
   const emptyCartMutation = useMutation<Cart, GenericErrorResponse, string>({ mutationFn: emptyCart });
-
-  React.useEffect(() => {
-    app.setCartSidebarOpen(false);
-  }, []);
 
   const initialValues: CreateOrderFormState = {
     fullName: "",
@@ -210,10 +205,6 @@ const CheckoutPage: NextPage = () => {
 
   if (isLoading) return null;
 
-  if (!isAuthenticated && isBrowser) {
-    router.push("/");
-  }
-
   return (
     <>
       <Head>
@@ -245,7 +236,7 @@ const CheckoutPage: NextPage = () => {
                       <FormLabel textTransform="uppercase" htmlFor="phone-number">
                         Phone Number
                       </FormLabel>
-                      <Field as={Input} name="phoneNumber" id="phone-number" type="number" variant="filled" placeholder="Enter your phone number" />
+                      <Field as={Input} name="phoneNumber" id="phone-number" variant="filled" placeholder="Enter your phone number" />
                       <ErrorMessage name="phoneNumber" component={FormErrorMessage} />
                     </FormControl>
                     <FormControl mt="6" isInvalid={isFieldInvalid(formik, "addressLineOne")}>
@@ -309,7 +300,7 @@ const CheckoutPage: NextPage = () => {
                     Total To Pay
                   </Text>
                   <Text fontSize="lg" fontWeight="semibold" textTransform="uppercase">
-                    Rs. {cart.data?.totalPrice}
+                    Rs. {cart.data?.totalPrice.toLocaleString()}
                   </Text>
                 </HStack>
               </SkeletonText>

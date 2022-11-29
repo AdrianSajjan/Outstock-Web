@@ -57,9 +57,12 @@ const TransactionsPage = () => {
                     </Stack>
                     <Stack>
                       <Text fontWeight="semibold">Refund Amount</Text>
-                      <Text>Rs. {transaction.refundAmount?.toFixed(0) || 0}</Text>
+                      <Text>Rs. {transaction.refundAmount?.toFixed(0).toLocaleString() || 0}</Text>
                     </Stack>
-                    <Stack>{/*<Button textTransform="capitalize">See Payment Details</Button>*/}</Stack>
+                    <Stack>
+                      <Text fontWeight="semibold">Amount Paid</Text>
+                      <Text>Rs. {transaction.order.totalAmount.toLocaleString() || 0}</Text>
+                    </Stack>
                   </SimpleGrid>
                   <Divider />
                 </React.Fragment>

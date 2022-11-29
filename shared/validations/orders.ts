@@ -7,7 +7,7 @@ export const OrderValidationSchema = Yup.object().shape({
   emailAddress: Yup.string().required("Email Address is required").email("Please provide a valid email"),
   phoneNumber: Yup.string()
     .required("Phone Number is required")
-    .matches(/^\d{10}$/, "Please provide a valid phone number"),
+    .matches(/^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/, "Please provide a valid phone number"),
   pinCode: Yup.string()
     .required("PIN Code is required")
     .matches(/^[1-9][0-9]{5}$/, "Please provide a valid PIN code"),

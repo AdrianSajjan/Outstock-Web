@@ -62,7 +62,7 @@ const OrderCard: NextPage<OrderCardProps> = ({ order, px = "0" }) => {
         <Text fontSize="lg" fontWeight="semibold">
           Total
         </Text>
-        <Text>Rs. {order?.totalAmount}</Text>
+        <Text>Rs. {order?.totalAmount.toLocaleString()}</Text>
       </HStack>
       <Divider />
     </VStack>
